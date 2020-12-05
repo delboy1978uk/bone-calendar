@@ -41,9 +41,9 @@ use Del\Icon;
                     <table class="table card-body table-hover text-nowrap">
                         <thead>
                         <tr>
-                            <th>ID</th>
                             <th>Name</th>
-                            <th>Date of birth</th>
+                            <th>Start Date</th>
+                            <th>End Date</th>
                             <th></th>
                             <th></th>
                         </tr>
@@ -52,9 +52,9 @@ use Del\Icon;
                         <?php if (count($calendars)) {
                             foreach ($calendars as $calendar) { ?>
                                 <tr>
-                                    <td><a href="/admin/calendar/<?= $calendar->getId() ?>"><?= $calendar->getId() ?></a></td>
-                                    <td><?= $calendar->getName() ?></td>
-                                    <td><?= $calendar->getDob()->format('d M Y') ?></td>
+                                    <td><?= $calendar->getEvent() ?></td>
+                                    <td><?= $calendar->getStartDate()->format('d/m/Y H:i') ?></td>
+                                    <td><?= $calendar->getEndDate()->format('d/m/Y H:i') ?></td>
                                     <td><a href="/admin/calendar/edit/<?= $calendar->getId() ?>"><?= Icon::EDIT ;?></a></td>
                                     <td><a href="/admin/calendar/delete/<?= $calendar->getId() ?>"><?= Icon::REMOVE ;?></a></td>
                                 </tr>

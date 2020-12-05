@@ -6,6 +6,7 @@ namespace Bone\Calendar\Service;
 
 use Bone\Calendar\Entity\Calendar;
 use Bone\Calendar\Repository\CalendarRepository;
+use Bone\Exception;
 use DateTime;
 use Doctrine\ORM\EntityManager;
 
@@ -68,7 +69,41 @@ class CalendarService
      */
     public function saveCalendar(Calendar $calendar): Calendar
     {
-        return $this->getRepository()->save($calendar);
+
+        if ($this->checkTimeSlotIsFree($calendar) && $this->checkTimeSlotIsFree($calendar, 'endDate')) {
+            return $this->getRepository()->save($calendar);
+        }
+
+        throw new Exception(' Time slot is not available');
+    }
+
+    /**
+     * @param Calendar $calendar
+     * @param string $dateToCkeck
+     * @return bool
+     */
+    public function checkTimeSlotIsFree(Calendar $calendar, string $dateToCkeck = 'startDate'): bool
+    {
+        $repo = $this->getRepository();
+        $query = $repo->createQueryBuilder('qb');
+        $query->select('e');
+        $query->from(Calendar::class, 'e');
+        $query->where('e.' . $dateToCkeck . ' BETWEEN :start and :finish');
+        $query->setParameter('start', $calendar->getStartDate());
+        $query->setParameter('finish', $calendar->getEndDate());
+
+        if ($calendar->getId()) {
+            $query->andWhere('e.id != :id');
+            $query->setParameter('id', $calendar->getId());
+        }
+
+        $results = $query->getQuery()->getResult();
+
+        if (count($results)) {
+            return false;
+        }
+
+        return true;
     }
 
     /**

@@ -7,6 +7,7 @@ use Bone\Calendar\Entity\Calendar;
 use Bone\Calendar\Form\CalendarForm;
 use Bone\Calendar\Service\CalendarService;
 use Bone\Controller\Controller;
+use Bone\Exception;
 use Bone\Http\Response\LayoutResponse;
 use Bone\View\Helper\AlertBox;
 use Bone\View\Helper\Paginator;
@@ -97,9 +98,14 @@ class CalendarController extends Controller
             if ($form->isValid()) {
                 $data = $form->getValues();
                 $calendar = $this->service->createFromArray($data);
-                $this->service->saveCalendar($calendar);
-                $msg = $this->alertBox(Icon::CHECK_CIRCLE . ' New calendar added to database.', 'success');
-                $form = new CalendarForm('createCalendar');
+                try {
+                    $this->service->saveCalendar($calendar);
+                    $msg = $this->alertBox(Icon::CHECK_CIRCLE . ' New event added to database.', 'success');
+                    $form = new CalendarForm('createCalendar');
+                } catch (Exception $e) {
+                    $msg = $this->alertBox(Icon::WARNING . $e->getMessage(), 'danger');
+                }
+
             } else {
                 $msg = $this->alertBox(Icon::REMOVE . ' There was a problem with the form.', 'danger');
             }
@@ -178,7 +184,7 @@ class CalendarController extends Controller
         } else {
             $form = $form->render();
             $msg = $this->alertBox(Icon::WARNING . ' Warning, please confirm your intention to delete.', 'danger');
-            $text = '<p class="lead">Are you sure you want to delete ' . $calendar->getName() . '?</p>';
+            $text = '<p class="lead">Are you sure you want to delete ' . $calendar->getEvent() . '?</p>';
         }
 
         $body = $this->view->render('calendar::delete', [
