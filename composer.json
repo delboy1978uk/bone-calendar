@@ -1,0 +1,23 @@
+{
+    "name": "delboy1978uk\/bone-calendar",
+    "description": "Calendar package for Bone Framework",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Derek Stephen McLean",
+            "email": "delboy1978uk@gmail.com"
+        }
+    ],
+    "require": {
+        "league\/plates": "^3.3",
+        "doctrine\/orm": "^2.6.3"
+    },
+    "require-dev": {
+        "roave\/security-advisories": "dev-master"
+    },
+    "autoload": {
+        "psr-4": {
+            "Bone\\Calendar\\": "src\/"
+        }
+    }
+}
