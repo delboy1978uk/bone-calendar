@@ -74,7 +74,7 @@ class CalendarService
             return $this->getRepository()->save($calendar);
         }
 
-        throw new Exception(' Time slot is not available');
+        throw new Exception('Time slot is not available', 403);
     }
 
     /**

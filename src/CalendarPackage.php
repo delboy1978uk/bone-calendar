@@ -17,12 +17,13 @@ use Bone\Router\Router;
 use Bone\Router\RouterConfigInterface;
 use Bone\User\Http\Middleware\SessionAuth;
 use Bone\View\ViewRegistrationInterface;
+use Del\Booty\AssetRegistrationInterface;
 use Doctrine\ORM\EntityManager;
 use Laminas\Diactoros\ResponseFactory;
 use League\Route\RouteGroup;
 use League\Route\Strategy\JsonStrategy;
 
-class CalendarPackage implements RegistrationInterface, RouterConfigInterface, EntityRegistrationInterface, ViewRegistrationInterface
+class CalendarPackage implements RegistrationInterface, RouterConfigInterface, EntityRegistrationInterface, ViewRegistrationInterface, AssetRegistrationInterface
 {
     /**
      * @param Container $c
@@ -74,6 +75,17 @@ class CalendarPackage implements RegistrationInterface, RouterConfigInterface, E
     }
 
     /**
+     * @return string[]
+     */
+    public function getAssetFolders(): array
+    {
+        return [
+            'bone-calendar' => dirname(__DIR__) . '/data/assets',
+        ];
+    }
+
+
+    /**
      * @param Container $c
      * @param Router $router
      * @return Router
@@ -87,6 +99,7 @@ class CalendarPackage implements RegistrationInterface, RouterConfigInterface, E
             $route->map('GET', '/create', [CalendarController::class, 'create']);
             $route->map('GET', '/edit/{id:number}', [CalendarController::class, 'edit']);
             $route->map('GET', '/delete/{id:number}', [CalendarController::class, 'delete']);
+            $route->map('GET', '/view', [CalendarController::class, 'calendarView']);
 
             $route->map('POST', '/create', [CalendarController::class, 'create']);
             $route->map('POST', '/edit/{id:number}', [CalendarController::class, 'edit']);

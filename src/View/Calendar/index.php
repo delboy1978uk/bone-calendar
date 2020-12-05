@@ -32,7 +32,7 @@ use Del\Icon;
                     </div>
                 </div>
             </div>
-            <div class="col"><a href="/admin/calendar/create" class="btn btn-primary pull-right"><?= Icon::ADD ?> Add a Calendar</a></div>
+            <div class="col"><a href="/admin/calendar/create" class="btn btn-primary pull-right"><?= Icon::ADD ?> Add an Event</a></div>
         </div>
         
         <div class="row">
@@ -52,7 +52,7 @@ use Del\Icon;
                         <?php if (count($calendars)) {
                             foreach ($calendars as $calendar) { ?>
                                 <tr>
-                                    <td><?= $calendar->getEvent() ?></td>
+                                    <td><a href="/admin/calendar/<?= $calendar->getId() ?>"><?= $calendar->getEvent() ?></a></td>
                                     <td><?= $calendar->getStartDate()->format('d/m/Y H:i') ?></td>
                                     <td><?= $calendar->getEndDate()->format('d/m/Y H:i') ?></td>
                                     <td><a href="/admin/calendar/edit/<?= $calendar->getId() ?>"><?= Icon::EDIT ;?></a></td>

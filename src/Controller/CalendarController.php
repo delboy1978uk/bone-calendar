@@ -103,7 +103,7 @@ class CalendarController extends Controller
                     $msg = $this->alertBox(Icon::CHECK_CIRCLE . ' New event added to database.', 'success');
                     $form = new CalendarForm('createCalendar');
                 } catch (Exception $e) {
-                    $msg = $this->alertBox(Icon::WARNING . $e->getMessage(), 'danger');
+                    $msg = $this->alertBox(Icon::WARNING . ' ' . $e->getMessage(), 'danger');
                 }
 
             } else {
@@ -143,8 +143,13 @@ class CalendarController extends Controller
             if ($form->isValid()) {
                 $data = $form->getValues();
                 $calendar = $this->service->updateFromArray($calendar, $data);
-                $this->service->saveCalendar($calendar);
-                $msg = $this->alertBox(Icon::CHECK_CIRCLE . ' Calendar details updated.', 'success');
+                try {
+                    $this->service->saveCalendar($calendar);
+                    $msg = $this->alertBox(Icon::CHECK_CIRCLE . ' Event details updated.', 'success');
+                    $form = new CalendarForm('createCalendar');
+                } catch (Exception $e) {
+                    $msg = $this->alertBox(Icon::WARNING . ' ' . $e->getMessage(), 'danger');
+                }
             } else {
                 $msg = $this->alertBox(Icon::REMOVE . ' There was a problem with the form.', 'danger');
             }
@@ -210,5 +215,26 @@ class CalendarController extends Controller
             'message' => $message,
             'class' => $class,
         ]);
+    }
+
+
+
+    /**
+     * @param ServerRequestInterface $request
+     * @return ResponseInterface $response
+     * @throws \Exception
+     */
+    public function calendarView(ServerRequestInterface $request): ResponseInterface
+    {
+//        $db = $this->service->getRepository();
+//        $id = $request->getAttribute('id');
+//        $calendar = $db->find($id);
+        $events = [];
+
+        $body = $this->view->render('calendar::calendar', [
+            'events' => $events,
+        ]);
+
+        return new LayoutResponse($body, $this->layout);
     }
 }

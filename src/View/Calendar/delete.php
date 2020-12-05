@@ -12,7 +12,7 @@ use Del\Icon; ?>
                 <ol class="breadcrumb float-sm-right">
                     <li class="breadcrumb-item"><a href="/admin">Admin</a></li>
                     <li class="breadcrumb-item"><a href="/admin/calendar">Calendar</a></li>
-                    <li class="breadcrumb-item active">Delete Calendar</li>
+                    <li class="breadcrumb-item active">Delete Event</li>
                 </ol>
             </div>
         </div>

@@ -13,7 +13,7 @@ use Del\Icon;
                 <ol class="breadcrumb float-sm-right">
                     <li class="breadcrumb-item"><a href="/admin">Admin</a></li>
                     <li class="breadcrumb-item"><a href="/admin/calendar">Calendar</a></li>
-                    <li class="breadcrumb-item active">View Calendar</li>
+                    <li class="breadcrumb-item active">View Event</li>
                 </ol>
             </div>
         </div>
@@ -26,10 +26,11 @@ use Del\Icon;
             <div class="card card-primary card-outline col-md-12">
                 <div class="card-body p-10">
                     <div class="mailbox-read-info">
-                        <h2><?= $calendar->getName() ?></h2>
+                        <h2><?= $calendar->getEvent() ?></h2>
                     </div>
                     <div class="mailbox-read-message">
-                        <p>Details will go here</p>
+                        <p><?= $calendar->getStartDate()->format('d M Y H:i') . ' - ' . $calendar->getEndDate()->format('H:i') ?></p>
+                        <p><?= $calendar->getLink() ? '<a href="' . $calendar->getLink() . '">' . $calendar->getLink() . '</a>' : '' ?></p>
                     </div>
                 </div>
 
