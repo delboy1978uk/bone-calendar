@@ -7,6 +7,8 @@ namespace Bone\Calendar\Controller;
 use Bone\Calendar\Collection\CalendarCollection;
 use Bone\Calendar\Form\CalendarForm;
 use Bone\Calendar\Service\CalendarService;
+use Bone\Exception;
+use DateTime;
 use Laminas\Diactoros\Response\JsonResponse;
 use League\Route\Http\Exception\NotFoundException;
 use Psr\Http\Message\ResponseInterface;
@@ -23,6 +25,25 @@ class CalendarApiController
     public function __construct(CalendarService $service)
     {
         $this->service = $service;
+    }
+
+    /**
+     * @param ServerRequestInterface $request
+     * @return ResponseInterface
+     */
+    public function calendarEvents(ServerRequestInterface $request): ResponseInterface
+    {
+        $query = $request->getQueryParams();
+        $start = $query['start'] ?? null;
+        $end = $query['end'] ?? null;
+
+        if (!$start && !$end) {
+            throw new Exception('You must supply a start and end date.', 400);
+        }
+
+        $events = $this->service->findEvents(new DateTime($start), new DateTime($end));
+
+        return new JsonResponse($events);
     }
 
     /**
@@ -65,6 +86,7 @@ class CalendarApiController
 
         if ($form->isValid()) {
             $data = $form->getValues();
+            $data['dateFormat'] = 'Y-m-d\TH:i:s.v\Z';
             $calendar = $this->service->createFromArray($data);
             $this->service->saveCalendar($calendar);
 
@@ -73,7 +95,7 @@ class CalendarApiController
 
         return new JsonResponse([
             'error' => $form->getErrorMessages(),
-        ]);
+        ], 400);
     }
 
     /**
@@ -104,6 +126,7 @@ class CalendarApiController
 
         if ($form->isValid()) {
             $data = $form->getValues();
+            $data['dateFormat'] = 'Y-m-d\TH:i:s.v\Z';
             $calendar = $this->service->updateFromArray($calendar, $data);
             $this->service->saveCalendar($calendar);
 
@@ -112,7 +135,7 @@ class CalendarApiController
 
         return new JsonResponse([
             'error' => $form->getErrorMessages(),
-        ]);
+        ], 400);
     }
 
     /**

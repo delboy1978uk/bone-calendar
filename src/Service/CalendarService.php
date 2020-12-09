@@ -45,15 +45,16 @@ class CalendarService
         isset($data['event']) ? $calendar->setEvent($data['event']) : $calendar->setEvent('');
         isset($data['link']) ? $calendar->setLink($data['link']) : $calendar->setLink(null);
         isset($data['owner']) ? $calendar->setOwner((int) $data['owner']) : null;
+        $dateFormat = $data['dateFormat'] ?: 'd/m/Y H:i';
 
         if (isset($data['startDate'])) {
-            $startDate = $data['startDate'] instanceof DateTime ? $data['startDate'] : DateTime::createFromFormat('d/m/Y H:i', $data['startDate']);
+            $startDate = $data['startDate'] instanceof DateTime ? $data['startDate'] : DateTime::createFromFormat($dateFormat, $data['startDate']);
             $startDate = $startDate ?: null;
             $calendar->setStartDate($startDate);
         }
 
         if (isset($data['endDate'])) {
-            $endDate = $data['endDate'] instanceof DateTime ? $data['endDate'] : DateTime::createFromFormat('d/m/Y H:i', $data['endDate']);
+            $endDate = $data['endDate'] instanceof DateTime ? $data['endDate'] : DateTime::createFromFormat($dateFormat, $data['endDate']);
             $endDate = $endDate ?: null;
             $calendar->setEndDate($endDate);
         }
@@ -69,7 +70,6 @@ class CalendarService
      */
     public function saveCalendar(Calendar $calendar): Calendar
     {
-
         if ($this->checkTimeSlotIsFree($calendar) && $this->checkTimeSlotIsFree($calendar, 'endDate')) {
             return $this->getRepository()->save($calendar);
         }
@@ -88,7 +88,8 @@ class CalendarService
         $query = $repo->createQueryBuilder('qb');
         $query->select('e');
         $query->from(Calendar::class, 'e');
-        $query->where('e.' . $dateToCkeck . ' BETWEEN :start and :finish');
+        $query->where('e.' . $dateToCkeck . ' > :start');
+        $query->andWhere('e.' . $dateToCkeck . ' < :finish');
         $query->setParameter('start', $calendar->getStartDate());
         $query->setParameter('finish', $calendar->getEndDate());
 
@@ -125,5 +126,46 @@ class CalendarService
         $repository = $this->em->getRepository(Calendar::class);
 
         return $repository;
+    }
+
+    /**
+     * @param DateTime $start
+     * @param DateTime $end
+     */
+    public function findEvents(DateTime $start, DateTime $end)
+    {
+        $repo = $this->getRepository();
+        $query = $repo->createQueryBuilder('qb');
+        $query->select('e');
+        $query->from(Calendar::class, 'e');
+        $query->where('e.startDate BETWEEN :start and :finish');
+        $query->setParameter('start', $start);
+        $query->setParameter('finish', $end);
+        $results =  $query->getQuery()->getResult();
+        $data = [];
+
+        /** @var Calendar $event */
+        foreach ($results as $event) {
+            $data[] = [
+                'title' => $event->getEvent(),
+                'start' => $event->getStartDate()->format(DateTime::ISO8601),
+                'end' => $event->getEndDate()->format(DateTime::ISO8601),
+                'url' => $event->getLink(),
+                'calendarID' => $event->getId(),
+                'owner' => $event->getOwner(),
+            ];
+        }
+
+        return $data;
+    }
+
+    /**
+     * @param int $id
+     * @param string $order
+     * @return array
+     */
+    public function getEventsByOwner(int $id, string $order = 'ASC'): array
+    {
+        return $this->getRepository(Calendar::class)->findBy(['owner' => $id], ['startDate' => $order]);
     }
 }

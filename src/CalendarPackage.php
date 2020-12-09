@@ -116,6 +116,7 @@ class CalendarPackage implements RegistrationInterface, RouterConfigInterface, E
             $route->map('GET', '/{id:number}', [CalendarApiController::class, 'view'])->prependMiddleware(new HalEntity());
             $route->map('PUT', '/{id:number}', [CalendarApiController::class, 'update']);
             $route->map('DELETE', '/{id:number}', [CalendarApiController::class, 'delete']);
+            $route->map('GET', '/events', [CalendarApiController::class, 'calendarEvents']);
         })
         ->setStrategy($strategy);
 

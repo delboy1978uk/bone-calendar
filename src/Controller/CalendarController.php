@@ -11,6 +11,7 @@ use Bone\Exception;
 use Bone\Http\Response\LayoutResponse;
 use Bone\View\Helper\AlertBox;
 use Bone\View\Helper\Paginator;
+use DateTime;
 use Del\Form\Field\Submit;
 use Del\Form\Form;
 use Del\Icon;
@@ -226,14 +227,7 @@ class CalendarController extends Controller
      */
     public function calendarView(ServerRequestInterface $request): ResponseInterface
     {
-//        $db = $this->service->getRepository();
-//        $id = $request->getAttribute('id');
-//        $calendar = $db->find($id);
-        $events = [];
-
-        $body = $this->view->render('calendar::calendar', [
-            'events' => $events,
-        ]);
+        $body = $this->view->render('calendar::calendar');
 
         return new LayoutResponse($body, $this->layout);
     }
