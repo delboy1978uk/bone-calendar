@@ -90,7 +90,7 @@ class CalendarApiController
             $calendar = $this->service->createFromArray($data);
             $this->service->saveCalendar($calendar);
 
-            return new JsonResponse($calendar->toArray());
+            return new JsonResponse($calendar->toArray($data['dateFormat']));
         }
 
         return new JsonResponse([
@@ -130,7 +130,7 @@ class CalendarApiController
             $calendar = $this->service->updateFromArray($calendar, $data);
             $this->service->saveCalendar($calendar);
 
-            return new JsonResponse($calendar->toArray());
+            return new JsonResponse($calendar->toArray($data['dateFormat']));
         }
 
         return new JsonResponse([

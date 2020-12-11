@@ -45,6 +45,8 @@ class CalendarService
         isset($data['event']) ? $calendar->setEvent($data['event']) : $calendar->setEvent('');
         isset($data['link']) ? $calendar->setLink($data['link']) : $calendar->setLink(null);
         isset($data['owner']) ? $calendar->setOwner((int) $data['owner']) : null;
+        isset($data['status']) ? $calendar->setStatus((int) $data['status']) : null;
+        isset($data['color']) ? $calendar->setColor($data['color']) : null;
         $dateFormat = $data['dateFormat'] ?: 'd/m/Y H:i';
 
         if (isset($data['startDate'])) {
@@ -153,6 +155,8 @@ class CalendarService
                 'url' => $event->getLink(),
                 'calendarID' => $event->getId(),
                 'owner' => $event->getOwner(),
+                'status' => $event->getStatus(),
+                'color' => $event->getColor(),
             ];
         }
 

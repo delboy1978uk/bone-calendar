@@ -62,6 +62,7 @@
             editable: true,
             eventOverlap: false,
             selectable: true,
+            allDaySlot: false,
             headerToolbar: {
                 start: 'today prev,next',
                 center: 'title',
@@ -70,6 +71,12 @@
             events: '/api/calendar/events',
             initialView: 'timeGridWeek',
             slotMinTime: '08:00',
+            slotDuration: '00:15:00',
+            businessHours: {
+                daysOfWeek: [ 1, 2, 3, 4, 5 ],
+                startTime: '09:00',
+                endTime: '17:00'
+            },
             eventResize: function (info) {
                 updateEvent(info.event);
             },

@@ -52,6 +52,18 @@ class Calendar implements JsonSerializable
     private $endDate;
 
     /**
+     * @var ?int $status
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $status;
+
+    /**
+     * @var ?string $color
+     * @ORM\Column(type="string", length=10, nullable=true)
+     */
+    private $color;
+
+    /**
      * @return int
      */
     public function getId(): ?int
@@ -148,6 +160,38 @@ class Calendar implements JsonSerializable
     }
 
     /**
+     * @return int|null
+     */
+    public function getStatus(): ?int
+    {
+        return $this->status;
+    }
+
+    /**
+     * @param int|null $status
+     */
+    public function setStatus(?int $status): void
+    {
+        $this->status = $status;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getColor(): ?string
+    {
+        return $this->color;
+    }
+
+    /**
+     * @param string|null $color
+     */
+    public function setColor(?string $color): void
+    {
+        $this->color = $color;
+    }
+
+    /**
      * @return array
      * @param string $dateFormat
      */
@@ -158,8 +202,9 @@ class Calendar implements JsonSerializable
             'event' => $this->getEvent(),
             'link' => $this->getLink(),
             'owner' => $this->getOwner(),
-            'startDate' => ($startDate = $this->getStartDate()) ? $startDate->format($dateFormat . ' H:i') : null,
-            'endDate' => ($endDate = $this->getEndDate()) ? $endDate->format($dateFormat . ' H:i') : null,
+            'startDate' => ($startDate = $this->getStartDate()) ? $startDate->format($dateFormat) : null,
+            'endDate' => ($endDate = $this->getEndDate()) ? $endDate->format($dateFormat) : null,
+            'status' => $this->getStatus() ? $this->getStatus() : null,
         ];
 
         return $data;
