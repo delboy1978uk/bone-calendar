@@ -38,6 +38,10 @@ class CalendarForm extends AbstractForm
         $endDate->setRequired(true);
         $this->addField($endDate);
 
+        $color = new Text('color');
+        $color->setLabel('Color');
+        $this->addField($color);
+
         $submit = new Submit('submit');
         $submit->setClass('btn btn-primary pull-right');
         $this->addField($submit);
