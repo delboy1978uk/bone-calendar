@@ -9,11 +9,10 @@
         }
     ],
     "require": {
-        "league\/plates": "^3.3",
-        "doctrine\/orm": "^2.6.3"
+        "delboy1978uk/bone-user": "^2.2"
     },
     "require-dev": {
-        "roave\/security-advisories": "dev-master"
+        "roave\/security-advisories": "dev-latest"
     },
     "autoload": {
         "psr-4": {
