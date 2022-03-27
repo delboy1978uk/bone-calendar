@@ -9,12 +9,15 @@ use Bone\Calendar\Repository\CalendarRepository;
 use Bone\Exception;
 use DateTime;
 use DateTimeInterface;
+use DateTimeZone;
 use Doctrine\ORM\EntityManager;
 
 class CalendarService
 {
-    /** @var EntityManager $em */
-    private $em;
+    const DEFAULT_DATETIME_ZONE = 'UTC';
+
+    private EntityManager $em;
+    private string$dateTimeZone = self::DEFAULT_DATETIME_ZONE;
 
     /**
      * @param EntityManager $em
@@ -22,6 +25,14 @@ class CalendarService
     public function __construct(EntityManager $em)
     {
         $this->em = $em;
+    }
+
+    /**
+     * @param string $timeZone
+     */
+    public function setTimeZone(string $timeZone): void
+    {
+        $this->dateTimeZone = $timeZone;
     }
 
     /**
@@ -48,17 +59,17 @@ class CalendarService
         isset($data['owner']) ? $calendar->setOwner((int) $data['owner']) : null;
         isset($data['status']) ? $calendar->setStatus((int) $data['status']) : null;
         isset($data['color']) ? $calendar->setColor($data['color']) : null;
-        isset($data['background']) ? $calendar->setBackgroundEvent(true) :  $calendar->setBackgroundEvent(false);
+        $data['background'] === false ? $calendar->setBackgroundEvent(false) :  $calendar->setBackgroundEvent(true);
         $dateFormat = $data['dateFormat'] ?? 'd/m/Y H:i';
 
         if (isset($data['startDate'])) {
-            $startDate = $data['startDate'] instanceof DateTime ? $data['startDate'] : DateTime::createFromFormat($dateFormat, $data['startDate']);
+            $startDate = $data['startDate'] instanceof DateTime ? $data['startDate'] : DateTime::createFromFormat($dateFormat, $data['startDate'], new DateTimeZone($this->dateTimeZone));
             $startDate = $startDate ?: null;
             $calendar->setStartDate($startDate);
         }
 
         if (isset($data['endDate'])) {
-            $endDate = $data['endDate'] instanceof DateTime ? $data['endDate'] : DateTime::createFromFormat($dateFormat, $data['endDate']);
+            $endDate = $data['endDate'] instanceof DateTime ? $data['endDate'] : DateTime::createFromFormat($dateFormat, $data['endDate'], new DateTimeZone($this->dateTimeZone));
             $endDate = $endDate ?: null;
             $calendar->setEndDate($endDate);
         }
@@ -74,6 +85,10 @@ class CalendarService
      */
     public function saveCalendar(Calendar $calendar): Calendar
     {
+        $utc = new DateTimeZone(self::DEFAULT_DATETIME_ZONE);
+        $calendar->getStartDate()->setTimezone($utc);
+        $calendar->getEndDate()->setTimezone($utc);
+
         if ($this->checkTimeSlotIsFree($calendar) && $this->checkTimeSlotIsFree($calendar, 'endDate')) {
             return $this->getRepository()->save($calendar);
         }

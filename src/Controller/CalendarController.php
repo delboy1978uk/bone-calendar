@@ -98,7 +98,9 @@ class CalendarController extends Controller
 
             if ($form->isValid()) {
                 $data = $form->getValues();
+                $this->setTimeZone($data);
                 $calendar = $this->service->createFromArray($data);
+
                 try {
                     $this->service->saveCalendar($calendar);
                     $msg = $this->alertBox(Icon::CHECK_CIRCLE . ' New event added to database.', 'success');
@@ -120,6 +122,19 @@ class CalendarController extends Controller
         ]);
 
         return new LayoutResponse($body, $this->layout);
+    }
+
+    /**
+     * @param array $data
+     */
+    private function setTimeZone(array $data): void
+    {
+        if (isset($data['timezoneOffset'])) {
+            $dateFormat = $data['dateFormat'] ?? 'd/m/Y H:i';
+            $start = new DateTime('now', new \DateTimeZone('Europe/London'));
+            $timeZone = timezone_name_from_abbr('', (int) $data['timezoneOffset'], (int) $start->format('I' ));
+            $this->service->setTimeZone($timeZone);
+        }
     }
 
     /**

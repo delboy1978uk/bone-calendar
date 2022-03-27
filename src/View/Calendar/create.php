@@ -32,3 +32,13 @@ use Del\Icon; ?>
         </div>
     </div>
 </section>
+
+<script type="text/javascript">
+    $(document).ready(function(){
+        var timezoneOffset = new Date().getTimezoneOffset();
+        timezoneOffset = timezoneOffset == 0 ? 0 : -timezoneOffset
+        timezoneOffset = timezoneOffset * 60;
+        $('#timezoneOffset').val(timezoneOffset);
+        console.log(timezoneOffset)
+    });
+</script>

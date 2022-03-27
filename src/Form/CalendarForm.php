@@ -6,6 +6,7 @@ namespace Bone\Calendar\Form;
 
 use Del\Form\AbstractForm;
 use Del\Form\Field\CheckBox;
+use Del\Form\Field\Hidden;
 use Del\Form\Field\Submit;
 use Del\Form\Field\Text;
 use Del\Form\Renderer\HorizontalFormRenderer;
@@ -45,7 +46,12 @@ class CalendarForm extends AbstractForm
 
         $background = new CheckBox('background');
         $background->setLabel('Background Event');
+        $background->setOption(1, 'Background Event');
         $this->addField($background);
+
+        $offset = new Hidden('timezoneOffset');
+        $offset->setId('timezoneOffset');
+        $this->addField($offset);
 
         $submit = new Submit('submit');
         $submit->setClass('btn btn-primary pull-right');
