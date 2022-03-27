@@ -48,6 +48,7 @@ class CalendarService
         isset($data['owner']) ? $calendar->setOwner((int) $data['owner']) : null;
         isset($data['status']) ? $calendar->setStatus((int) $data['status']) : null;
         isset($data['color']) ? $calendar->setColor($data['color']) : null;
+        isset($data['background']) ? $calendar->setBackgroundEvent(true) :  $calendar->setBackgroundEvent(false);
         $dateFormat = $data['dateFormat'] ?? 'd/m/Y H:i';
 
         if (isset($data['startDate'])) {

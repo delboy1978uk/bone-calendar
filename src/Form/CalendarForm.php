@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Bone\Calendar\Form;
 
 use Del\Form\AbstractForm;
+use Del\Form\Field\CheckBox;
 use Del\Form\Field\Submit;
 use Del\Form\Field\Text;
 use Del\Form\Renderer\HorizontalFormRenderer;
@@ -41,6 +42,10 @@ class CalendarForm extends AbstractForm
         $color = new Text('color');
         $color->setLabel('Color');
         $this->addField($color);
+
+        $background = new CheckBox('background');
+        $background->setLabel('Background Event');
+        $this->addField($background);
 
         $submit = new Submit('submit');
         $submit->setClass('btn btn-primary pull-right');
