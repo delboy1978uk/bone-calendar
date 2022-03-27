@@ -8,6 +8,7 @@ use Bone\Calendar\Entity\Calendar;
 use Bone\Calendar\Repository\CalendarRepository;
 use Bone\Exception;
 use DateTime;
+use DateTimeInterface;
 use Doctrine\ORM\EntityManager;
 
 class CalendarService
@@ -47,7 +48,7 @@ class CalendarService
         isset($data['owner']) ? $calendar->setOwner((int) $data['owner']) : null;
         isset($data['status']) ? $calendar->setStatus((int) $data['status']) : null;
         isset($data['color']) ? $calendar->setColor($data['color']) : null;
-        $dateFormat = $data['dateFormat'] ?: 'd/m/Y H:i';
+        $dateFormat = $data['dateFormat'] ?? 'd/m/Y H:i';
 
         if (isset($data['startDate'])) {
             $startDate = $data['startDate'] instanceof DateTime ? $data['startDate'] : DateTime::createFromFormat($dateFormat, $data['startDate']);
@@ -148,16 +149,22 @@ class CalendarService
 
         /** @var Calendar $event */
         foreach ($results as $event) {
-            $data[] = [
+            $array = [
                 'title' => $event->getEvent(),
-                'start' => $event->getStartDate()->format(DateTime::ISO8601),
-                'end' => $event->getEndDate()->format(DateTime::ISO8601),
+                'start' => $event->getStartDate()->format(DateTimeInterface::ISO8601),
+                'end' => $event->getEndDate()->format(DateTimeInterface::ISO8601),
                 'url' => $event->getLink(),
                 'calendarID' => $event->getId(),
                 'owner' => $event->getOwner(),
                 'status' => $event->getStatus(),
                 'color' => $event->getColor(),
             ];
+
+            if ($event->isBackgroundEvent()) {
+                $array['display'] = 'background';
+            }
+
+            $data[] = $array;
         }
 
         return $data;

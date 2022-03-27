@@ -13,6 +13,8 @@ use JsonSerializable;
  */
 class Calendar implements JsonSerializable
 {
+    const DEFAULT_DATE_FORMAT = 'd/m/Y H:i';
+
     /**
      * @var int $id
      * @ORM\Id
@@ -29,7 +31,7 @@ class Calendar implements JsonSerializable
 
     /**
      * @var string $link
-     * @ORM\Column(type="string", length=50, nullable=true)
+     * @ORM\Column(type="string", length=100, nullable=true)
      */
     private $link;
 
@@ -62,6 +64,12 @@ class Calendar implements JsonSerializable
      * @ORM\Column(type="string", length=10, nullable=true)
      */
     private $color;
+
+    /**
+     * @var bool $backgroundEvent
+     * @ORM\Column(type="boolean", nullable=false)
+     */
+    private $backgroundEvent = false;
 
     /**
      * @return int
@@ -192,10 +200,26 @@ class Calendar implements JsonSerializable
     }
 
     /**
+     * @return bool
+     */
+    public function isBackgroundEvent(): bool
+    {
+        return $this->backgroundEvent;
+    }
+
+    /**
+     * @param bool $backgroundEvent
+     */
+    public function setBackgroundEvent(bool $backgroundEvent): void
+    {
+        $this->backgroundEvent = $backgroundEvent;
+    }
+
+    /**
      * @return array
      * @param string $dateFormat
      */
-    public function toArray(string $dateFormat = 'd/m/Y'): array
+    public function toArray(string $dateFormat = self::DEFAULT_DATE_FORMAT): array
     {
         $data = [
             'id' => $this->getId(),
@@ -206,6 +230,10 @@ class Calendar implements JsonSerializable
             'endDate' => ($endDate = $this->getEndDate()) ? $endDate->format($dateFormat) : null,
             'status' => $this->getStatus() ? $this->getStatus() : null,
         ];
+
+        if ($this->isBackgroundEvent()) {
+            $data['display'] = 'background';
+        }
 
         return $data;
     }
