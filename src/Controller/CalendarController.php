@@ -20,6 +20,20 @@ use Psr\Http\Message\ServerRequestInterface;
 
 class CalendarController extends Controller
 {
+    const TYPE_BACKGROUND = 'background';
+    const TYPE_DISPLAY = 'display';
+    const TYPE_DRAGGABLE = 'draggable';
+
+    const VIEW_BACKGROUND_EVENTS = 'calendar::calendar-with-background-events';
+    const VIEW_DISPLAY_ONLY = 'calendar::calendar';
+    const VIEW_DRAGGABLE = 'calendar::calendar-with-draggable';
+
+    const VIEWS = [
+        self::TYPE_BACKGROUND => self::VIEW_BACKGROUND_EVENTS,
+        self::TYPE_DISPLAY => self::VIEW_DISPLAY_ONLY,
+        self::TYPE_DRAGGABLE => self::VIEW_DRAGGABLE,
+    ];
+
     /** @var int $numPerPage */
     private $numPerPage = 10;
 
@@ -227,7 +241,9 @@ class CalendarController extends Controller
      */
     public function calendarView(ServerRequestInterface $request): ResponseInterface
     {
-        $body = $this->view->render('calendar::calendar');
+        $type = $request->getAttributes()['viewType'] ?? self::TYPE_DISPLAY;
+        $view = self::VIEWS[$type] ?? self::VIEW_DISPLAY_ONLY;
+        $body = $this->view->render($view);
 
         return new LayoutResponse($body, $this->layout);
     }
