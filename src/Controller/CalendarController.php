@@ -132,7 +132,7 @@ class CalendarController extends Controller
         if (isset($data['timezoneOffset'])) {
             $dateFormat = $data['dateFormat'] ?? 'd/m/Y H:i';
             $start = new DateTime('now', new \DateTimeZone('Europe/London'));
-            $timeZone = timezone_name_from_abbr('', (int) $data['timezoneOffset'], (int) $start->format('I' ));
+            $timeZone = \timezone_name_from_abbr('', (int) $data['timezoneOffset'], (int) $start->format('I' ));
             $this->service->setTimeZone($timeZone);
         }
     }
@@ -242,7 +242,7 @@ class CalendarController extends Controller
      */
     public function calendarView(ServerRequestInterface $request): ResponseInterface
     {
-        $body = $this->view->render('calendar::calendar');
+        $body = $this->view->render('calendar::calendar-with-draggable');
 
         return new LayoutResponse($body, $this->layout);
     }

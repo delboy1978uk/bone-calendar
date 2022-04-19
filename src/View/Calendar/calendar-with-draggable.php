@@ -29,16 +29,6 @@
                         <div class="card-body">
                             <div id="external-events">
                                 <div class="external-event bg-success ui-draggable ui-draggable-handle" style="position: relative;">Lunch</div>
-                                <div class="external-event bg-warning ui-draggable ui-draggable-handle" style="position: relative;">Go home</div>
-                                <div class="external-event bg-info ui-draggable ui-draggable-handle" style="position: relative;">Do homework</div>
-                                <div class="external-event bg-primary ui-draggable ui-draggable-handle" style="position: relative;">Work on UI design</div>
-                                <div class="external-event bg-danger ui-draggable ui-draggable-handle" style="position: relative;">Sleep tight</div>
-                                <div class="checkbox">
-                                    <label for="drop-remove">
-                                        <input type="checkbox" id="drop-remove">
-                                        remove after drop
-                                    </label>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -49,19 +39,24 @@
                         <div class="card-body">
                             <div class="btn-group" style="width: 100%; margin-bottom: 10px;">
                                 <ul class="fc-color-picker" id="color-chooser">
-                                    <li><a class="text-primary" href="#"><i class="fas fa-square"></i></a></li>
-                                    <li><a class="text-warning" href="#"><i class="fas fa-square"></i></a></li>
-                                    <li><a class="text-success" href="#"><i class="fas fa-square"></i></a></li>
-                                    <li><a class="text-danger" href="#"><i class="fas fa-square"></i></a></li>
-                                    <li><a class="text-muted" href="#"><i class="fas fa-square"></i></a></li>
+                                    <li><a class="text-primary" href="#" data-content="blue"><i class="fa fa-square"></i></a></li>
+                                    <li><a class="text-warning" href="#" data-content="orange"><i class="fa fa-square"></i></a></li>
+                                    <li><a class="text-success" href="#" data-content="green"><i class="fa fa-square"></i></a></li>
+                                    <li><a class="text-danger" href="#" data-content="red"><i class="fa fa-square"></i></a></li>
+                                    <li><a class="text-muted" href="#" data-content="grey"><i class="fa fa-square"></i></a></li>
                                 </ul>
                             </div>
+                            <div id="nocolor" class="text-danger hide">Please select a color.</div>
                             <div class="input-group">
                                 <input id="new-event" type="text" class="form-control" placeholder="Event Title">
 
                                 <div class="input-group-append">
                                     <button id="add-new-event" type="button" class="btn btn-primary">Add</button>
                                 </div>
+                                <div id="invalid" class="text-danger hide">Please enter 2 or more characters.</div>
+                            </div>
+                            <div class="btn-group text-muted">
+                                <input id="bg-event" type="checkbox"/>&nbsp;Background event
                             </div>
                         </div>
                     </div>
@@ -74,4 +69,63 @@
 
     </div>
 </section>
+<style>
+    .rotate {
+        transform: rotate(30deg);
+    }
+</style>
+<script type="text/javascript">
+    $(document).ready(function(){
 
+        let draggableEl = document.getElementById('external-events');
+        let calendarEl = document.getElementById('calendar');
+
+        let calendar = new Calendar(calendarEl, {
+            droppable: true
+        });
+
+        calendar.render();
+
+        new Draggable(draggableEl);
+
+        function isValid()  {
+            let newEvent = $('#new-event');
+            let color = $('#color-chooser li a i.rotate').parent().data('content');
+
+            let invalid = $('#invalid');
+            let noColor = $('#nocolor');
+            let name = newEvent.val();
+            var valid = false
+
+            if (name.length < 2) {
+                newEvent.addClass('border-danger');
+                invalid.removeClass('hide');
+            } else {
+                newEvent.removeClass('border-danger');
+                invalid.addClass('hide');
+            }
+
+            if (!color) {
+                noColor.removeClass('hide');
+            } else {
+                noColor.addClass('hide');
+            }
+
+            return name.length > 2 && color;
+        }
+
+        $('#add-new-event').click(function (e) {
+            if (isValid()) {
+                let eventName = $('#new-event').val();
+                let color = $('#color-chooser li a i.rotate').parent().data('content');
+                let backgroundEvent =
+                alert ('now check for background checkbox')
+            }
+        });
+
+        $('#color-chooser li a i').click(function () {
+            $('#color-chooser li a i').removeClass('rotate')
+            $(this).addClass('rotate')
+        });
+    });
+</script>
