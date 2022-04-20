@@ -242,7 +242,10 @@ class CalendarController extends Controller
      */
     public function calendarView(ServerRequestInterface $request): ResponseInterface
     {
-        $body = $this->view->render('calendar::calendar-with-draggable');
+        $user = $request->getAttribute('user');
+        $body = $this->view->render('calendar::calendar-with-draggable', [
+            'user' => $user,
+        ]);
 
         return new LayoutResponse($body, $this->layout);
     }
