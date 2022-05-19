@@ -62,7 +62,7 @@ class CalendarApiController
         $calendars = new CalendarCollection($db->findBy([], null, $limit, $offset));
         $total = $db->getTotalCalendarCount();
         $count = count($calendars);
-        
+
         if ($count < 1) {
             throw new NotFoundException();
         }
@@ -90,7 +90,7 @@ class CalendarApiController
             $data['dateFormat'] = 'Y-m-d\TH:i:s.v\Z';
             $calendar = $this->service->createFromArray($data);
             $this->service->saveCalendar($calendar);
-
+                
             return new JsonResponse($calendar->toArray($data['dateFormat']));
         }
 

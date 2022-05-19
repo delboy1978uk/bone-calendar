@@ -49,7 +49,7 @@ class Calendar implements JsonSerializable
 
     /**
      * @var DateTime $endDate
-     * @ORM\Column(type="datetime", nullable=false)
+     * @ORM\Column(type="datetime")
      */
     private $endDate;
 
@@ -70,6 +70,12 @@ class Calendar implements JsonSerializable
      * @ORM\Column(type="boolean", nullable=false)
      */
     private $backgroundEvent = false;
+
+    /**
+     * @var bool $backgroundEvent
+     * @ORM\Column(type="boolean", nullable=false)
+     */
+    private $allDay = false;
 
     /**
      * @return int
@@ -216,6 +222,22 @@ class Calendar implements JsonSerializable
     }
 
     /**
+     * @return bool
+     */
+    public function isAllDay(): bool
+    {
+        return $this->allDay;
+    }
+
+    /**
+     * @param bool $allDay
+     */
+    public function setAllDay(bool $allDay): void
+    {
+        $this->allDay = $allDay;
+    }
+
+    /**
      * @return array
      * @param string $dateFormat
      */
@@ -227,12 +249,18 @@ class Calendar implements JsonSerializable
             'link' => $this->getLink(),
             'owner' => $this->getOwner(),
             'startDate' => ($startDate = $this->getStartDate()) ? $startDate->format($dateFormat) : null,
-            'endDate' => ($endDate = $this->getEndDate()) ? $endDate->format($dateFormat) : null,
+//            'endDate' => ($endDate = $this->getEndDate()) ? $endDate->format($dateFormat) : null,
             'status' => $this->getStatus() ? $this->getStatus() : null,
         ];
 
         if ($this->isBackgroundEvent()) {
             $data['display'] = 'background';
+        }
+
+        if ($this->isAllDay()) {
+            $data['allDay'] = true;
+        } else {
+            $data['endDate'] = ($endDate = $this->getEndDate()) ? $endDate->format($dateFormat) : null;
         }
 
         return $data;

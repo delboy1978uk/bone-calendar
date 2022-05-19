@@ -106,7 +106,7 @@ class CalendarController extends Controller
                     $msg = $this->alertBox(Icon::CHECK_CIRCLE . ' New event added to database.', 'success');
                     $form = new CalendarForm('createCalendar');
                 } catch (Exception $e) {
-                    $msg = $this->alertBox(Icon::WARNING . ' ' . $e->getMessage(), 'danger');
+                    $msg = $this->alertBox(Icon::WARNING . ' ' . $e->gf(), 'danger');
                 }
 
             } else {

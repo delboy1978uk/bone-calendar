@@ -37,7 +37,6 @@ class CalendarForm extends AbstractForm
         $endDate = new Text('endDate');
         $endDate->setClass('form-control datetimepicker');
         $endDate->setLabel('End Date');
-        $endDate->setRequired(true);
         $this->addField($endDate);
 
         $color = new Text('color');
@@ -48,6 +47,11 @@ class CalendarForm extends AbstractForm
         $background->setLabel('Background Event');
         $background->setOption(1, 'Background Event');
         $this->addField($background);
+
+        $allDay = new CheckBox('allDay');
+        $allDay->setLabel('All Day Event');
+        $allDay->setOption(1, 'All Day Event');
+        $this->addField($allDay);
 
         $offset = new Hidden('timezoneOffset');
         $offset->setId('timezoneOffset');

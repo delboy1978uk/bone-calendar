@@ -59,6 +59,7 @@ class CalendarService
         isset($data['owner']) ? $calendar->setOwner((int) $data['owner']) : null;
         isset($data['status']) ? $calendar->setStatus((int) $data['status']) : null;
         isset($data['color']) ? $calendar->setColor($data['color']) : null;
+        isset($data['allDay']) ? $calendar->setAllDay($data['allDay']) : false;
         $data['background'] === false ? $calendar->setBackgroundEvent(false) :  $calendar->setBackgroundEvent(true);
         $dateFormat = $data['dateFormat'] ?? 'd/m/Y H:i';
 
@@ -71,7 +72,7 @@ class CalendarService
         if (isset($data['endDate'])) {
             $endDate = $data['endDate'] instanceof DateTime ? $data['endDate'] : DateTime::createFromFormat($dateFormat, $data['endDate'], new DateTimeZone($this->dateTimeZone));
             $endDate = $endDate ?: null;
-            $calendar->setEndDate($endDate);
+            $endDate instanceof DateTime ? $calendar->setEndDate($endDate) : null;
         }
 
         return $calendar;
@@ -86,10 +87,13 @@ class CalendarService
     public function saveCalendar(Calendar $calendar): Calendar
     {
         $utc = new DateTimeZone(self::DEFAULT_DATETIME_ZONE);
-        $calendar->getStartDate()->setTimezone($utc);
-        $calendar->getEndDate()->setTimezone($utc);
+        $startDate = $calendar->getStartDate();
+        $startDate->setTimezone($utc);
+        $allDayEndDate = (clone $calendar->getStartDate())->modify('+1 day');
+        die(var_dump($calendar->toArray()));
+        $calendar->isAllDay() ? $calendar->setEndDate($allDayEndDate) : $calendar->getEndDate()->setTimezone($utc);
 
-        if ($this->checkTimeSlotIsFree($calendar) && $this->checkTimeSlotIsFree($calendar, 'endDate')) {
+        if ($calendar->isAllDay() || ($this->checkTimeSlotIsFree($calendar) && $this->checkTimeSlotIsFree($calendar, 'endDate'))) {
             return $this->getRepository()->save($calendar);
         }
 
