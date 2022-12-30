@@ -66,8 +66,8 @@ class GoogleCalendarService
         $googleEvent = new Event();
         $googleEvent->setEnd($end);
         $googleEvent->setStart($start);
-        $googleEvent->setColorId('#ff0000');
-        $googleEvent->setDescription($event->getEvent());
+//        $googleEvent->setColorId('#ff0000');
+        $googleEvent->setSummary($event->getEvent());
         try {
             $result = $this->googleCalendar->events->insert($this->calendarId, $googleEvent);
         } catch (\Exception $e) {

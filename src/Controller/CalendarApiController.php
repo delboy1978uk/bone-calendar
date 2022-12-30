@@ -46,7 +46,7 @@ class CalendarApiController
         $events = $this->service->findEvents(new DateTime($start), new DateTime($end));
         $events2 = $this->googleCalendarService->getEvents(new DateTime($start), new DateTime($end));
 
-        return new JsonResponse($events2);
+        return new JsonResponse($events);
     }
 
     /**
