@@ -1,4 +1,3 @@
-<?php use Del\Icon; ?>
 <link rel="stylesheet" href="/bone-calendar/fullcalendar/main.min.css">
 <script src='/bone-calendar/fullcalendar/main.js'></script>
 
@@ -28,43 +27,17 @@
                             <h4 class="card-title">Draggable Events</h4>
                         </div>
                         <div class="card-body">
-                            <div id="choose-type" data-type="">
-                                <p class="external-event bg-info"><?= Icon::DATABASE ?> Appointment type</p>
-                                <div class="appointment-types">
-                                    <span class="mt20">&nbsp;</span>
-                                    <span title="New Patient"  data-description="New Patient" data-value="primary" class="tt hover-finger badge active-primary badge-secondary mt20">New</span>
-                                    <span title="IV Sedation"  data-description="IV Sedation" data-value="indigo" class="tt hover-finger badge active-indigo badge-secondary mt20">IV</span>
-                                    <span title="LA Treatment" data-description="LA Treatment" data-value="orange" class="tt hover-finger badge active-orange badge-secondary mt20">LA</span>
-                                    <span title="Biopsy" data-description="Biopsy" data-value="teal" class="tt hover-finger badge active-teal badge-secondary mt20">Biopsy</span>
-                                    <span title="Review" data-description="Review" data-value="info"  class="tt hover-finger badge active-info badge-secondary mt20">Review</span>
-                                </div>
-                            </div>
-                            <p class="text-white corners" id="type"></p>
-                            <div id="choose-day" class="hide">
-                                <p class="external-event bg-info"><?= Icon::CALENDAR ?> Select a day</p>
-                            </div>
-                            <div id="choose-length" class="hide text-center">
-                                <p class="external-event bg-info">
-                                    <?= Icon::ARROWS_V ?> Drag the length you need</p>
-                                <br>
-                                <p class="lead">
-                                    <span class="text-muted"><?= Icon::CALENDAR_O ?></span> <strong><span id="appointment-date"></span></strong><br>
-                                    <span class="text-muted"><?= Icon::CLOCK_O ?></span> <strong><span id="appointment-time"></span></strong>
-                                    for <span id="duration">1</span> <span id="hrs">hr</span>
-                                </p>
-                                <br>
-                                <button id="confirm-appointment" class="btn btn-success btn-block">
-                                    <?= Icon::CHECK ?> Confirm Appointment
-                                </button>
-                                <a id="confirm-appointment" href="" class="btn btn-danger btn-block">
-                                    <?= Icon::RECYCLE ?> Start Again
-                                </a>
-                            </div>
-                            <div id="external-events" class="hide">
-                                <p class="external-event bg-info"><?= Icon::ARROWS_H ?> Drag the appointment</p>
-                                <div id="draggable"  class="drag-div external-event ui-draggable ui-draggable-handle" style="position: relative;">
-                                    <span id="patient">xxx</span>
-                                    <span class="pull-right">1 hr</span>
+                            <div id="external-events">
+                                <div class="external-event bg-success ui-draggable ui-draggable-handle" style="position: relative;">Lunch</div>
+                                <div class="external-event bg-warning ui-draggable ui-draggable-handle" style="position: relative;">Go home</div>
+                                <div class="external-event bg-info ui-draggable ui-draggable-handle" style="position: relative;">Do homework</div>
+                                <div class="external-event bg-primary ui-draggable ui-draggable-handle" style="position: relative;">Work on UI design</div>
+                                <div class="external-event bg-danger ui-draggable ui-draggable-handle" style="position: relative;">Sleep tight</div>
+                                <div class="checkbox">
+                                    <label for="drop-remove">
+                                        <input type="checkbox" id="drop-remove">
+                                        remove after drop
+                                    </label>
                                 </div>
                             </div>
                         </div>
@@ -94,55 +67,11 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-9">
-                <div id="calendar"></div>
-            </div>
+        </div>
+        <div class="col">
+            <div id="calendar"></div>
         </div>
 
     </div>
 </section>
 
-<script type="text/javascript">
-    $(document).ready(function() {
-        var Calendar = FullCalendar.Calendar;
-        var Draggable = FullCalendar.Draggable;
-
-        var containerEl = document.getElementById('external-events');
-        var calendarEl = document.getElementById('calendar');
-        var checkbox = document.getElementById('drop-remove');
-
-        // initialize the external events
-        // -----------------------------------------------------------------
-
-        new Draggable(containerEl, {
-            itemSelector: '.fc-event',
-            eventData: function(eventEl) {
-                return {
-                    title: eventEl.innerText
-                };
-            }
-        });
-
-        // initialize the calendar
-        // -----------------------------------------------------------------
-
-        var calendar = new Calendar(calendarEl, {
-            headerToolbar: {
-                left: 'prev,next today',
-                center: 'title',
-                right: 'dayGridMonth,timeGridWeek,timeGridDay'
-            },
-            editable: true,
-            droppable: true, // this allows things to be dropped onto the calendar
-            drop: function(info) {
-                // is the "remove after drop" checkbox checked?
-                if (checkbox.checked) {
-                    // if so, remove the element from the "Draggable Events" list
-                    info.draggedEl.parentNode.removeChild(info.draggedEl);
-                }
-            }
-        });
-
-        calendar.render();
-    });
-</script>

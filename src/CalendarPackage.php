@@ -100,7 +100,6 @@ class CalendarPackage implements RegistrationInterface, RouterConfigInterface, E
             $route->map('GET', '/edit/{id:number}', [CalendarController::class, 'edit']);
             $route->map('GET', '/delete/{id:number}', [CalendarController::class, 'delete']);
             $route->map('GET', '/view', [CalendarController::class, 'calendarView']);
-            $route->map('GET', '/view/{viewType}', [CalendarController::class, 'calendarView']);
 
             $route->map('POST', '/create', [CalendarController::class, 'create']);
             $route->map('POST', '/edit/{id:number}', [CalendarController::class, 'edit']);
