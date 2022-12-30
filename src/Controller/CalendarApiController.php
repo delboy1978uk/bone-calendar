@@ -7,6 +7,7 @@ namespace Bone\Calendar\Controller;
 use Bone\Calendar\Collection\CalendarCollection;
 use Bone\Calendar\Form\CalendarForm;
 use Bone\Calendar\Service\CalendarService;
+use Bone\Calendar\Service\GoogleCalendarService;
 use Bone\Exception;
 use DateTime;
 use Laminas\Diactoros\Response\JsonResponse;
@@ -16,15 +17,16 @@ use Psr\Http\Message\ServerRequestInterface;
 
 class CalendarApiController
 {
-    /** @param CalendarService $service */
-    private $service;
+    private CalendarService $service;
+    private GoogleCalendarService $googleCalendarService;
 
     /**
      * @param CalendarService $service
      */
-    public function __construct(CalendarService $service)
+    public function __construct(CalendarService $service, GoogleCalendarService $googleCalendarService = null)
     {
         $this->service = $service;
+        $this->googleCalendarService = $googleCalendarService;
     }
 
     /**
@@ -42,8 +44,9 @@ class CalendarApiController
         }
 
         $events = $this->service->findEvents(new DateTime($start), new DateTime($end));
+        $events2 = $this->googleCalendarService->getEvents(new DateTime($start), new DateTime($end));
 
-        return new JsonResponse($events);
+        return new JsonResponse($events2);
     }
 
     /**
@@ -89,6 +92,7 @@ class CalendarApiController
             $data['dateFormat'] = 'Y-m-d\TH:i:s.v\Z';
             $calendar = $this->service->createFromArray($data);
             $this->service->saveCalendar($calendar);
+            $this->googleCalendarService->createEvent($calendar);
 
             return new JsonResponse($calendar->toArray($data['dateFormat']));
         }

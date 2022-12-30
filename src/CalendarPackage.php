@@ -10,6 +10,7 @@ use Barnacle\RegistrationInterface;
 use Bone\Calendar\Controller\CalendarApiController;
 use Bone\Calendar\Controller\CalendarController;
 use Bone\Calendar\Service\CalendarService;
+use Bone\Calendar\Service\GoogleCalendarService;
 use Bone\Controller\Init;
 use Bone\Http\Middleware\HalCollection;
 use Bone\Http\Middleware\HalEntity;
@@ -30,6 +31,12 @@ class CalendarPackage implements RegistrationInterface, RouterConfigInterface, E
      */
     public function addToContainer(Container $c)
     {
+        $c[GoogleCalendarService::class] = $c->factory(function (Container $c) {
+            $calendarId = $c->has('bone-calendar') ? $c->get('bone-calendar')['calendarId'] : '';
+
+            return new GoogleCalendarService($calendarId);
+        });
+
         $c[CalendarService::class] = $c->factory(function (Container $c) {
             $em =  $c->get(EntityManager::class);
 
@@ -44,8 +51,9 @@ class CalendarPackage implements RegistrationInterface, RouterConfigInterface, E
 
         $c[CalendarApiController::class] = $c->factory(function (Container $c) {
             $service = $c->get(CalendarService::class);
+            $googleCalendarService = $c->get(GoogleCalendarService::class);
 
-            return new CalendarApiController($service);
+            return new CalendarApiController($service, $googleCalendarService);
         });
     }
 
