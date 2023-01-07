@@ -7,10 +7,12 @@ namespace Bone\Calendar;
 use Barnacle\Container;
 use Barnacle\EntityRegistrationInterface;
 use Barnacle\RegistrationInterface;
+use Bone\Calendar\Command\CalendarWebhookCommand;
 use Bone\Calendar\Controller\CalendarApiController;
 use Bone\Calendar\Controller\CalendarController;
 use Bone\Calendar\Service\CalendarService;
 use Bone\Calendar\Service\GoogleCalendarService;
+use Bone\Console\CommandRegistrationInterface;
 use Bone\Controller\Init;
 use Bone\Http\Middleware\HalCollection;
 use Bone\Http\Middleware\HalEntity;
@@ -24,7 +26,7 @@ use Laminas\Diactoros\ResponseFactory;
 use League\Route\RouteGroup;
 use League\Route\Strategy\JsonStrategy;
 
-class CalendarPackage implements RegistrationInterface, RouterConfigInterface, EntityRegistrationInterface, ViewRegistrationInterface, AssetRegistrationInterface
+class CalendarPackage implements RegistrationInterface, RouterConfigInterface, EntityRegistrationInterface, ViewRegistrationInterface, AssetRegistrationInterface, CommandRegistrationInterface
 {
     /**
      * @param Container $c
@@ -130,5 +132,10 @@ class CalendarPackage implements RegistrationInterface, RouterConfigInterface, E
         ->setStrategy($strategy);
 
         return $router;
+    }
+
+    public function registerConsoleCommands(Container $container): array
+    {
+        return [new CalendarWebhookCommand()];
     }
 }
