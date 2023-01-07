@@ -46,7 +46,7 @@ class CalendarApiController
         $events = $this->service->findEvents(new DateTime($start), new DateTime($end));
         $events2 = $this->googleCalendarService->getEvents(new DateTime($start), new DateTime($end));
 
-        return new JsonResponse($events2);
+        return new JsonResponse($events);
     }
 
     /**
@@ -92,7 +92,9 @@ class CalendarApiController
             $data['dateFormat'] = 'Y-m-d\TH:i:s.v\Z';
             $calendar = $this->service->createFromArray($data);
             $this->service->saveCalendar($calendar);
-            $this->googleCalendarService->createEvent($calendar);
+            $googleEvent = $this->googleCalendarService->createEvent($calendar);
+            $calendar->setExtendedProperties((array) $googleEvent->toSimpleObject());
+            $this->service->saveCalendar($calendar);
 
             return new JsonResponse($calendar->toArray($data['dateFormat']));
         }
@@ -133,6 +135,8 @@ class CalendarApiController
             $data['dateFormat'] = 'Y-m-d\TH:i:s.v\Z';
             $calendar = $this->service->updateFromArray($calendar, $data);
             $this->service->saveCalendar($calendar);
+            $googleEvent = $this->googleCalendarService->getEvent($calendar->getExtendedProperties()['id']);
+            $this->googleCalendarService->updateFromArray($googleEvent, $calendar);
 
             return new JsonResponse($calendar->toArray($data['dateFormat']));
         }

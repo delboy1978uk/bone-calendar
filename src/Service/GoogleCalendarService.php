@@ -58,7 +58,7 @@ class GoogleCalendarService
         }
     }
 
-    public function createEvent(CalendarEvent $event)
+    public function createEvent(CalendarEvent $event): Event
     {
         $data = $event->toArray('Y-m-d\TH:i:s+00:00');
         $properties = new Calendar\EventExtendedProperties();
@@ -76,6 +76,30 @@ class GoogleCalendarService
         $googleEvent->setExtendedProperties($properties);
 
         return $this->googleCalendar->events->insert($this->calendarId, $googleEvent);
+    }
+
+    public function getEvent($id): Event
+    {
+        return $this->googleCalendar->events->get($this->calendarId, $id);
+    }
+
+    public function updateFromArray(Event $googleEvent, CalendarEvent $event): Event
+    {
+        $googleEvent->setSummary($event->getEvent());
+        $end = new EventDateTime();
+        $end->setDateTime($event->getEndDate()->format('Y-m-d\TH:i:s+00:00'));
+        $start = new EventDateTime();
+        $start->setDateTime($event->getStartDate()->format('Y-m-d\TH:i:s+00:00'));
+        $googleEvent->setEnd($end);
+        $googleEvent->setStart($start);
+        $data = $event->toArray('Y-m-d\TH:i:s+00:00');
+        $properties = new Calendar\EventExtendedProperties();
+        $properties->setPrivate($data);
+        $colorId = $this->getGoogleColorId($event);
+        $googleEvent->setColorId($colorId);
+        $googleEvent->setExtendedProperties($properties);
+
+        return $this->googleCalendar->events->update($this->calendarId, $googleEvent->getId(), $googleEvent);
     }
 
     private function getGoogleColorId(CalendarEvent $event): int
