@@ -205,6 +205,7 @@ class Calendar implements JsonSerializable
             'startDate' => ($startDate = $this->getStartDate()) ? $startDate->format($dateFormat) : null,
             'endDate' => ($endDate = $this->getEndDate()) ? $endDate->format($dateFormat) : null,
             'status' => $this->getStatus() ? $this->getStatus() : null,
+            'color' => $this->getColor(),
         ];
 
         return $data;

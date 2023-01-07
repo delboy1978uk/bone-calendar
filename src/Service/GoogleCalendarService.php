@@ -39,16 +39,17 @@ class GoogleCalendarService
 
             /** @var Event $event*/
             foreach ($events as $event) {
-//                var_dump($event); exit;
+                $properties = $event->getExtendedProperties()->getPrivate();
                 $results[] = [
-                    'title' => $event->getSummary(),
-                    'start' => $event->getStart()->getDate(),
-                    'end' => $event->getEnd()->dateTime,
-                    'url' => $event->getHtmlLink(),
-                    'calendarID' => $event->getSummary(),
-                    'status' => null,
-                    'color' => 'primary',
+                    'title' => $properties['event'],
+                    'start' => $properties['startDate'],
+                    'end' => $properties['endDate'],
+                    'url' => $properties['link'],
+                    'calendarID' => $properties['id'],
+                    'status' => $properties['status'] ?? null,
+                    'color' => $properties['color'] ?? null,
                 ];
+
             }
 
             return $results;
@@ -59,6 +60,9 @@ class GoogleCalendarService
 
     public function createEvent(CalendarEvent $event)
     {
+        $data = $event->toArray('Y-m-d\TH:i:s+00:00');
+        $properties = new Calendar\EventExtendedProperties();
+        $properties->setPrivate($data);
         $end = new EventDateTime();
         $end->setDateTime($event->getEndDate()->format('Y-m-d\TH:i:s+00:00'));
         $start = new EventDateTime();
@@ -66,14 +70,30 @@ class GoogleCalendarService
         $googleEvent = new Event();
         $googleEvent->setEnd($end);
         $googleEvent->setStart($start);
-//        $googleEvent->setColorId('#ff0000');
+        $colorId = $this->getGoogleColorId($event);
+        $googleEvent->setColorId($colorId);
         $googleEvent->setSummary($event->getEvent());
-//        try {
-            $result = $this->googleCalendar->events->insert($this->calendarId, $googleEvent);
-//        } catch (\Exception $e) {
-//            $e->getMessage();
-//        }
+        $googleEvent->setExtendedProperties($properties);
 
-        die(var_dump($result));
+        return $this->googleCalendar->events->insert($this->calendarId, $googleEvent);
+    }
+
+    private function getGoogleColorId(CalendarEvent $event): int
+    {
+        switch ($event->getColor()) {
+            case 'teal':
+                return 2;
+            case 'indigo':
+                return 3;
+            case 'red':
+                return 4;
+            case 'orange':
+                return 5;
+            case 'info':
+                return 7;
+            case 'primary':
+            default:
+                return 1;
+        }
     }
 }
