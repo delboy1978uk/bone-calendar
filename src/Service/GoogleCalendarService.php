@@ -16,11 +16,13 @@ use Google\Service\Calendar\EventDateTime;
 class GoogleCalendarService
 {
     private string $calendarId = '';
+    private string $callbackUrl = '';
     private Calendar $googleCalendar;
 
-    public function __construct(string $calendarId)
+    public function __construct(string $calendarId, string $callbackUrl)
     {
         $this->calendarId = $calendarId;
+        $this->callbackUrl = $callbackUrl;
         $client = new Client();
         $client->useApplicationDefaultCredentials();
         $client->addScope(Calendar::CALENDAR);
@@ -100,6 +102,22 @@ class GoogleCalendarService
         $googleEvent->setExtendedProperties($properties);
 
         return $this->googleCalendar->events->update($this->calendarId, $googleEvent->getId(), $googleEvent);
+    }
+
+    public function getWebhooks()
+    {
+        $channel = new Calendar\Channel();
+        $channel->setId('lonerganwebhook');
+        $channel->setType('webhook');
+        $channel->setAddress($this->callbackUrl);
+        return $this->googleCalendar->settings->watch($channel);
+
+//        return $this->googleCalendar->calendars->get($this->calendarId);
+    }
+
+    public function deleteEvent(string $eventId): void
+    {
+        $this->googleCalendar->events->delete($this->calendarId, $eventId);
     }
 
     private function getGoogleColorId(CalendarEvent $event): int

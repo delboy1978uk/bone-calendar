@@ -4,15 +4,19 @@ declare(strict_types=1);
 
 namespace Bone\Calendar\Command;
 
+use Bone\Calendar\Service\GoogleCalendarService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class CalendarWebhookCommand extends Command
 {
-    public function __construct()
+    private GoogleCalendarService $googleCalendarService;
+
+    public function __construct(GoogleCalendarService $googleCalendarService)
     {
         parent::__construct('calendar:webhook');
+        $this->googleCalendarService = $googleCalendarService;
     }
 
     protected function configure()
@@ -27,7 +31,11 @@ class CalendarWebhookCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $output->writeln('');
         $output->writeln('📅 Google Calendar webhook config');
+        $output->writeln('');
+        $webhooks = $this->googleCalendarService->getWebhooks();
+        die(var_dump($webhooks));
 
         return Command::SUCCESS;
     }

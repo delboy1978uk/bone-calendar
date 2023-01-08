@@ -46,7 +46,7 @@ class CalendarApiController
         $events = $this->service->findEvents(new DateTime($start), new DateTime($end));
         $events2 = $this->googleCalendarService->getEvents(new DateTime($start), new DateTime($end));
 
-        return new JsonResponse($events);
+        return new JsonResponse($events2);
     }
 
     /**
@@ -64,7 +64,7 @@ class CalendarApiController
         $db = $this->service->getRepository();
         $calendars = new CalendarCollection($db->findBy([], null, $limit, $offset));
         $total = $db->getTotalCalendarCount();
-        $count = count($calendars);
+        $count = \count($calendars);
         if ($count < 1) {
             throw new NotFoundException();
         }
@@ -83,7 +83,7 @@ class CalendarApiController
      */
     public function create(ServerRequestInterface $request): ResponseInterface
     {
-        $post = json_decode($request->getBody()->getContents(), true) ?: $request->getParsedBody();
+        $post = \json_decode($request->getBody()->getContents(), true) ?: $request->getParsedBody();
         $form = new CalendarForm('create');
         $form->populate($post);
 
@@ -126,7 +126,7 @@ class CalendarApiController
         $db = $this->service->getRepository();
         $calendar = $db->find($request->getAttribute('id'));
 
-        $post = json_decode($request->getBody()->getContents(), true) ?: $request->getParsedBody();
+        $post = \json_decode($request->getBody()->getContents(), true) ?: $request->getParsedBody();
         $form = new CalendarForm('update');
         $form->populate($post);
 
@@ -156,6 +156,7 @@ class CalendarApiController
         $db = $this->service->getRepository();
         $calendar = $db->find($request->getAttribute('id'));
         $this->service->deleteCalendar($calendar);
+        $this->googleCalendarService->deleteEvent($calendar->getExtendedProperties()['id']);
 
         return new JsonResponse(['deleted' => true]);
     }

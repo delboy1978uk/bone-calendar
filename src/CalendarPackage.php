@@ -35,8 +35,9 @@ class CalendarPackage implements RegistrationInterface, RouterConfigInterface, E
     {
         $c[GoogleCalendarService::class] = $c->factory(function (Container $c) {
             $calendarId = $c->has('bone-calendar') ? $c->get('bone-calendar')['calendarId'] : '';
+            $callbackUrl =  $c->has('bone-calendar') ? $c->get('bone-calendar')['callbackUrl'] : '';
 
-            return new GoogleCalendarService($calendarId);
+            return new GoogleCalendarService($calendarId, $callbackUrl);
         });
 
         $c[CalendarService::class] = $c->factory(function (Container $c) {
@@ -136,6 +137,8 @@ class CalendarPackage implements RegistrationInterface, RouterConfigInterface, E
 
     public function registerConsoleCommands(Container $container): array
     {
-        return [new CalendarWebhookCommand()];
+        $googleCalendarService = $container->get(GoogleCalendarService::class);
+
+        return [new CalendarWebhookCommand($googleCalendarService)];
     }
 }
