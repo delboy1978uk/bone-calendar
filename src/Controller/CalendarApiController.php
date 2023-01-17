@@ -168,6 +168,10 @@ class CalendarApiController
      */
     public function googleCallback(ServerRequestInterface $request): ResponseInterface
     {
+        \error_log('--- GOOGLE REQUEST START ---');
         \error_log($request->getBody()->getContents());
+        \error_log('--- GOOGLE REQUEST END ---');
+
+        return new JsonResponse(['body' => $request->getBody()->getContents()]);
     }
 }
