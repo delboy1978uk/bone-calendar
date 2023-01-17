@@ -160,4 +160,14 @@ class CalendarApiController
 
         return new JsonResponse(['deleted' => true]);
     }
+
+    /**
+     * @param ServerRequestInterface $request
+     * @return ResponseInterface
+     * @throws \Exception
+     */
+    public function googleCallback(ServerRequestInterface $request): ResponseInterface
+    {
+        \error_log($request->getBody()->getContents());
+    }
 }

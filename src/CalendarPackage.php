@@ -129,6 +129,7 @@ class CalendarPackage implements RegistrationInterface, RouterConfigInterface, E
             $route->map('PUT', '/{id:number}', [CalendarApiController::class, 'update']);
             $route->map('DELETE', '/{id:number}', [CalendarApiController::class, 'delete']);
             $route->map('GET', '/events', [CalendarApiController::class, 'calendarEvents']);
+            $route->map('POST', '/google/callback', [CalendarApiController::class, 'googleCallback']);
         })
         ->setStrategy($strategy);
 
