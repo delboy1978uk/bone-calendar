@@ -104,15 +104,14 @@ class GoogleCalendarService
         return $this->googleCalendar->events->update($this->calendarId, $googleEvent->getId(), $googleEvent);
     }
 
-    public function getWebhooks()
+    public function registerWebhook(string $hookName = 'webhook')
     {
         $channel = new Calendar\Channel();
-        $channel->setId('lonerganwebhook');
+        $channel->setId($hookName);
         $channel->setType('webhook');
         $channel->setAddress($this->callbackUrl);
-        return $this->googleCalendar->settings->watch($channel);
 
-//        return $this->googleCalendar->calendars->get($this->calendarId);
+        return $this->googleCalendar->settings->watch($channel);
     }
 
     public function deleteEvent(string $eventId): void
