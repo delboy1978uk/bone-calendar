@@ -34,8 +34,23 @@ class CalendarWebhookCommand extends Command
         $output->writeln('');
         $output->writeln('📅 Google Calendar webhook config');
         $output->writeln('');
-        $webhooks = $this->googleCalendarService->getWebhooks();
-        die(var_dump($webhooks));
+
+        try {
+            $this->googleCalendarService->registerWebhook('lonerganwebhook');
+            $output->writeln('✔ Webhook registered.');
+        } catch (\Google\Service\Exception $e) {
+            if ($e->getErrors()[0]['reason'] !== 'channelIdNotUnique') {
+                $output->writeln('💀 Error :');
+                $output->writeln('');
+                $output->writeln($e->getMessage());
+
+                return Command::FAILURE;
+            }
+
+            $output->writeln('✔ Webhook is already registered.');
+        }
+
+        $output->writeln('');
 
         return Command::SUCCESS;
     }
