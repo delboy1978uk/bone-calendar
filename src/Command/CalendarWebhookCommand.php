@@ -6,7 +6,9 @@ namespace Bone\Calendar\Command;
 
 use Bone\Calendar\Service\GoogleCalendarService;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class CalendarWebhookCommand extends Command
@@ -23,6 +25,7 @@ class CalendarWebhookCommand extends Command
     {
         $this->setDescription('[webhook] Sets up Google Calendar webhook');
         $this->setHelp('Sets a callback URL that will notify the system if the event is updated on Google');
+        $this->addArgument('delete', InputArgument::OPTIONAL, 'remve the webhook');
     }
 
     /**
@@ -35,8 +38,18 @@ class CalendarWebhookCommand extends Command
         $output->writeln('📅 Google Calendar webhook config');
         $output->writeln('');
 
+        if ($input->hasArgument('delete')) {
+            return $this->remove($output);
+        } else {
+            return $this->register($output);
+        }
+    }
+
+    private function register(OutputInterface $output): int
+    {
         try {
-            $this->googleCalendarService->registerWebhook('lonerganwebhook');
+            $x = $this->googleCalendarService->registerWebhook('xxxxx');
+            var_dump($x);
             $output->writeln('✔ Webhook registered.');
         } catch (\Google\Service\Exception $e) {
             if ($e->getErrors()[0]['reason'] !== 'channelIdNotUnique') {
@@ -48,6 +61,23 @@ class CalendarWebhookCommand extends Command
             }
 
             $output->writeln('✔ Webhook is already registered.');
+            $output->writeln('');
+
+            return Command::SUCCESS;
+        }
+    }
+
+    private function remove(OutputInterface $output): int
+    {
+        try {
+            $this->googleCalendarService->removeWebhook('xxxxx');
+            $output->writeln('✔ Webhook removed.');
+        } catch (\Google\Service\Exception $e) {
+                $output->writeln('💀 Error :');
+                $output->writeln('');
+                $output->writeln($e->getMessage());
+
+                return Command::FAILURE;
         }
 
         $output->writeln('');
