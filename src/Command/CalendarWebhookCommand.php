@@ -39,8 +39,12 @@ class CalendarWebhookCommand extends Command
         $output->writeln('');
 
         if ($input->hasArgument('delete')) {
+            $output->writeln('Deleting webhook..');
+
             return $this->remove($output);
         } else {
+            $output->writeln('Registering webhook..');
+
             return $this->register($output);
         }
     }
