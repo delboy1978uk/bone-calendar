@@ -172,6 +172,9 @@ class CalendarApiController
         \error_log($request->getBody()->getContents());
         \error_log('--- GOOGLE REQUEST END ---');
 
+
+        // https://developers.googleblog.com/2013/07/google-calendar-api-push-notifications.html
+
         return new JsonResponse(['body' => $request->getBody()->getContents()]);
     }
 }

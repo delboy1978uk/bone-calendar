@@ -111,7 +111,12 @@ class GoogleCalendarService
         $channel->setType('webhook');
         $channel->setAddress($this->callbackUrl);
 
-        return $this->googleCalendar->settings->watch($channel);
+        return $this->googleCalendar->events->watch($this->calendarId, $channel);
+    }
+
+    public function getHooks(): Calendar\Settings
+    {
+        return $this->googleCalendar->settings->listSettings();
     }
 
     public function deleteEvent(string $eventId): void
