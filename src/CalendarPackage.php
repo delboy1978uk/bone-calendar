@@ -7,6 +7,7 @@ namespace Bone\Calendar;
 use Barnacle\Container;
 use Barnacle\EntityRegistrationInterface;
 use Barnacle\RegistrationInterface;
+use Bone\Calendar\Command\CalendarSyncCommand;
 use Bone\Calendar\Command\CalendarWebhookCommand;
 use Bone\Calendar\Controller\CalendarApiController;
 use Bone\Calendar\Controller\CalendarController;
@@ -140,6 +141,9 @@ class CalendarPackage implements RegistrationInterface, RouterConfigInterface, E
     {
         $googleCalendarService = $container->get(GoogleCalendarService::class);
 
-        return [new CalendarWebhookCommand($googleCalendarService)];
+        return [
+            new CalendarWebhookCommand($googleCalendarService),
+            new CalendarSyncCommand($googleCalendarService),
+        ];
     }
 }

@@ -39,19 +39,40 @@ class GoogleCalendarService
             ]);
             $results = [];
 
-            /** @var Event $event*/
+            /** @var Event $event */
             foreach ($events as $event) {
-                $properties = $event->getExtendedProperties()->getPrivate();
-                $results[] = [
-                    'title' => $properties['event'],
-                    'start' => $properties['startDate'],
-                    'end' => $properties['endDate'],
-                    'url' => $properties['link'],
-                    'calendarID' => $properties['id'],
-                    'status' => $properties['status'] ?? null,
-                    'color' => $properties['color'] ?? null,
-                ];
+                if ($properties = $event->getExtendedProperties()?->getPrivate()) {
+                    $results[] = [
+                        'title' => $properties['event'],
+                        'start' => $properties['startDate'],
+                        'end' => $properties['endDate'],
+                        'url' => $properties['link'],
+                        'calendarID' => $properties['id'],
+                        'status' => $properties['status'] ?? null,
+                        'color' => $properties['color'] ?? null,
+                    ];
+                } else {
+                    $data = [
+                        'title' => $event->getSummary(),
+                        'url' => $event->getHtmlLink(),
+                        'color' => $event->getColorId(),
+                        'calendarID' => $event->getId(),
+                    ];
 
+                    $start = $event->getStart()->getDateTime();
+                    $end = $event->getEnd()->getDateTime();
+
+                    if (null !== $start && null !== $end) {
+                        $data['start'] = $start;
+                        $data['end'] = $end;
+                    } else {
+                        $data['allDay'] = true;
+                        $data['start'] = $event->getStart()->getDate();
+                        $data['end'] = $event->getEnd()->getDate();
+                    }
+
+                    $results[] = $data;
+                }
             }
 
             return $results;

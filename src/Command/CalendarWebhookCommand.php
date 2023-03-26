@@ -66,9 +66,9 @@ class CalendarWebhookCommand extends Command
 
             $output->writeln('✔ Webhook is already registered.');
             $output->writeln('');
-
-            return Command::SUCCESS;
         }
+
+        return Command::SUCCESS;
     }
 
     private function remove(OutputInterface $output): int
