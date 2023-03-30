@@ -15,6 +15,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 class CalendarSyncCommand extends Command
 {
     private GoogleCalendarService $googleCalendarService;
+    private OutputInterface $output;
 
     public function __construct(GoogleCalendarService $googleCalendarService)
     {
@@ -32,8 +33,9 @@ class CalendarSyncCommand extends Command
      * @param InputInterface $input
      * @param OutputInterface $output
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        $this->output = $output;
         $output->writeln('');
         $output->writeln('📅 Google Calendar Sync');
         $output->writeln('');
@@ -43,7 +45,7 @@ class CalendarSyncCommand extends Command
             $events = $this->googleCalendarService->getGoogleEvents(new \DateTime('-1 year'),  new \DateTime());
 
             foreach ($events as  $event) {
-                $this->handleEvent($output, $event);
+                $this->handleEvent($event);
             }
         } catch (Exception $e) {
 
@@ -57,8 +59,19 @@ class CalendarSyncCommand extends Command
         return Command::SUCCESS;
     }
 
-    private function handleEvent(OutputInterface $output, $event)
+    private function handleEvent(Event $event): void
     {
-        $output->writeln('Received event ' . $event->getSummary());
+        $this->output->writeln('Received event ' . $event->getSummary());
+        $isAppointment = $event->getExtendedProperties()?->getPrivate() ?? false;
+
+        if ($isAppointment)  {
+            $this->output->writeln('    Processing ' . $event->getSummary());
+            $this->processEvent($event);
+        }
+    }
+
+    private function processEvent(Event $event): void
+    {
+
     }
 }
