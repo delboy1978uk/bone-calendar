@@ -11,6 +11,7 @@ use Exception;
 use Google\Client;
 use Google\Service\Calendar;
 use Google\Service\Calendar\Event;
+use Google\Service\Calendar\Events;
 use Google\Service\Calendar\EventDateTime;
 
 class GoogleCalendarService
@@ -30,13 +31,18 @@ class GoogleCalendarService
         $this->googleCalendar = new Calendar($client);
     }
 
+    public function getGoogleEvents(DateTime $start, DateTime $end): Events
+    {
+        return $this->googleCalendar->events->listEvents($this->calendarId, [
+            'timeMin' => $start->format('Y-m-d\TH:i:s\Z'),
+            'timeMax' => $end->format('Y-m-d\TH:i:s\Z'),
+        ]);
+    }
+
     public function getEvents(DateTime $start, DateTime $end): array
     {
         try {
-            $events = $this->googleCalendar->events->listEvents($this->calendarId, [
-                'timeMin' => $start->format('Y-m-d\TH:i:s\Z'),
-                'timeMax' => $end->format('Y-m-d\TH:i:s\Z'),
-            ]);
+            $events = $this->getGoogleEvents($start, $end);
             $results = [];
 
             /** @var Event $event */

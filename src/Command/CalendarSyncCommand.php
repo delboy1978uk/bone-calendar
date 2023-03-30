@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Bone\Calendar\Command;
 
 use Bone\Calendar\Service\GoogleCalendarService;
+use Google\Service\Calendar\Event;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -25,7 +26,6 @@ class CalendarSyncCommand extends Command
     {
         $this->setDescription('[sync] Performs initial calendar sync');
         $this->setHelp('Fetches calendar data from Google');
-//        $this->addArgument('delete', InputArgument::OPTIONAL, 'remve the webhook');
     }
 
     /**
@@ -40,9 +40,11 @@ class CalendarSyncCommand extends Command
         $output->writeln('Fetching Calendar Data..');
 
         try {
-            $x = $this->googleCalendarService->getEvents(new \DateTime('-1 year'),  new \DateTime());
-            var_dump($x);
-            $output->writeln('✔ Calendar synchronised.');
+            $events = $this->googleCalendarService->getGoogleEvents(new \DateTime('-1 year'),  new \DateTime());
+
+            foreach ($events as  $event) {
+                $this->handleEvent($output, $event);
+            }
         } catch (Exception $e) {
 
                 $output->writeln('💀 Error :');
@@ -53,5 +55,10 @@ class CalendarSyncCommand extends Command
         }
 
         return Command::SUCCESS;
+    }
+
+    private function handleEvent(OutputInterface $output, $event)
+    {
+        $output->writeln('Received event ' . $event->getSummary());
     }
 }
