@@ -46,25 +46,27 @@ class CalendarSyncCommand extends Command
         $this->output = $output;
         $output->writeln('');
         $output->writeln('📅 Google Calendar Sync');
-        $output->writeln('');
-        $output->writeln('Fetching Calendar Data..');
 
         try {
+            $output->writeln('');
+            $output->writeln('Fetching Google Calendar Data..');
             $googleEvents = $this->googleCalendarService->getGoogleEvents(new \DateTime('-1 year'),  new \DateTime('+1 year'));
 
             foreach ($googleEvents as  $event) {
                 $this->handleGoogleEvent($event);
             }
 
+            $output->writeln('');
+            $output->writeln('Fetching DB Calendar Data..');
             $dbEvents = $this->calendarService->findEventEntities(new \DateTime('-1 year'),  new \DateTime('+1 year'));
 
             foreach ($dbEvents as  $event) {
                 $this->handleDbEvent($event);
             }
         } catch (Exception $e) {
-                $output->writeln('💀 Error :' . $e->getMessage());
+            $output->writeln('💀 Error :' . $e->getMessage());
 
-                return Command::FAILURE;
+            return Command::FAILURE;
         }
 
         return Command::SUCCESS;
@@ -76,19 +78,18 @@ class CalendarSyncCommand extends Command
         $isDataEvent = $event->getExtendedProperties()?->getPrivate() ?? false;
 
         if ($isDataEvent)  {
-            $this->output->writeln('    Processing ' . $event->getSummary());
             $this->processEvent($event);
         }
     }
 
     private function handleDbEvent(Calendar $event): void
     {
-        $this->output->writeln('Received event ' . $event->getEvent());
 
         if (\in_array($event->getId(), $this->processedIds)) {
             return;;
         }
 
+        $this->output->writeln('Received event ' . $event->getEvent());
         $isAlreadyOnGoogle = $event->getExtendedProperties() ? true : false;
 
         if (!$isAlreadyOnGoogle)  {
@@ -107,7 +108,6 @@ class CalendarSyncCommand extends Command
 
         try {
             $dbEvent = $this->calendarService->getRepository()->find($id);
-            $this->output->writeln('    Event found in the DB, checking which is up to date..');
             $lastUpdated = new \DateTime($dbEvent->getExtendedProperties()['updated'] ?? 'now');
             $googleUpdated = new \DateTime($event->getUpdated());
 
@@ -116,7 +116,7 @@ class CalendarSyncCommand extends Command
                 $dbEvent = $this->calendarService->updateFromArray($dbEvent, $data);
                 $dbEvent->setExtendedProperties($extendedProps);
             } else if ($lastUpdated == $googleUpdated) {
-                $this->output->writeln('    Event is already in sync.');
+                $this->output->writeln('    DB event is already in sync.');
             } else {
                 $this->output->writeln('    DB event is newer, TODO UPDATE GOOGLE EVENT');
             }
@@ -131,11 +131,8 @@ class CalendarSyncCommand extends Command
 
     private function insertEventNotInDb(array $data, array $extendedProps): void
     {
-        $dbEvent = $this->calendarService->createFromArray($data);
-        $dbEvent->setExtendedProperties($extendedProps);
         $sql = 'INSERT INTO `Calendar` (id, event, link, owner, startDate, endDate, status, color, extendedProperties) 
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
-        var_dump($data, $extendedProps); exit;
         $params = [
             $data['id'],
             $data['event'],
@@ -143,9 +140,9 @@ class CalendarSyncCommand extends Command
             $data['owner'],
             $data['startDate'],
             $data['endDate'],
-            $data['status'],
+            $data['status'] ?? null,
             $data['color'],
-            $data['extendedProperties'],
+            \json_encode($extendedProps),
         ];
         $result = $this->connection->executeStatement($sql, $params);
     }
