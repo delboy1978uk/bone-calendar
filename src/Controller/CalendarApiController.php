@@ -65,6 +65,7 @@ class CalendarApiController
         $calendars = new CalendarCollection($db->findBy([], null, $limit, $offset));
         $total = $db->getTotalCalendarCount();
         $count = \count($calendars);
+
         if ($count < 1) {
             throw new NotFoundException();
         }
@@ -132,6 +133,7 @@ class CalendarApiController
 
         if ($form->isValid()) {
             $data = $form->getValues();
+            $data['id'] = (int) $data['id'];
             $data['dateFormat'] = 'Y-m-d\TH:i:s.v\Z';
             $calendar = $this->service->updateFromArray($calendar, $data);
             $this->service->saveCalendar($calendar);

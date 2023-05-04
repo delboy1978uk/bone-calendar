@@ -41,12 +41,13 @@ class CalendarService
      */
     public function updateFromArray(Calendar $calendar, array $data): Calendar
     {
-        isset($data['id']) ? $calendar->setId($data['id']) : null;
+        isset($data['id']) ? $calendar->setId((int) $data['id']) : null;
         isset($data['event']) ? $calendar->setEvent($data['event']) : $calendar->setEvent('');
         isset($data['link']) ? $calendar->setLink($data['link']) : $calendar->setLink(null);
         isset($data['owner']) ? $calendar->setOwner((int) $data['owner']) : null;
         isset($data['status']) ? $calendar->setStatus((int) $data['status']) : null;
         isset($data['color']) ? $calendar->setColor($data['color']) : null;
+        isset($data['extendedProperties']) ? $calendar->setExtendedProperties($data['extendedProperties']) : '';
         $dateFormat = $data['dateFormat'] ?: 'd/m/Y H:i';
 
         if (isset($data['startDate'])) {
@@ -130,11 +131,7 @@ class CalendarService
         return $repository;
     }
 
-    /**
-     * @param DateTime $start
-     * @param DateTime $end
-     */
-    public function findEvents(DateTime $start, DateTime $end)
+    public function findEventEntities(DateTime $start, DateTime $end)
     {
         $repo = $this->getRepository();
         $query = $repo->createQueryBuilder('qb');
@@ -143,7 +140,18 @@ class CalendarService
         $query->where('e.startDate BETWEEN :start and :finish');
         $query->setParameter('start', $start);
         $query->setParameter('finish', $end);
-        $results =  $query->getQuery()->getResult();
+
+        return $query->getQuery()->getResult();
+    }
+
+    /**
+     * @param DateTime $start
+     * @param DateTime $end
+     * @return array
+     */
+    public function findEvents(DateTime $start, DateTime $end): array
+    {
+        $results =  $this->findEventEntities();
         $data = [];
 
         /** @var Calendar $event */

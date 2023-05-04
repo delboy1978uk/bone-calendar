@@ -4,7 +4,11 @@ declare(strict_types=1);
 
 namespace Bone\Calendar\Command;
 
+use Bone\Calendar\Entity\Calendar;
+use Bone\Calendar\Service\CalendarService;
 use Bone\Calendar\Service\GoogleCalendarService;
+use Doctrine\DBAL\Connection;
+use Doctrine\ORM\Exception\ORMException;
 use Google\Service\Calendar\Event;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -15,11 +19,15 @@ use Symfony\Component\Console\Output\OutputInterface;
 class CalendarSyncCommand extends Command
 {
     private GoogleCalendarService $googleCalendarService;
+    private CalendarService $calendarService;
+    private ?Connection $connection = null;
     private OutputInterface $output;
+    private array $processedIds = [];
 
-    public function __construct(GoogleCalendarService $googleCalendarService)
+    public function __construct(GoogleCalendarService $googleCalendarService, CalendarService $calendarService)
     {
         parent::__construct('calendar:sync');
+        $this->calendarService = $calendarService;
         $this->googleCalendarService = $googleCalendarService;
     }
 
@@ -42,16 +50,19 @@ class CalendarSyncCommand extends Command
         $output->writeln('Fetching Calendar Data..');
 
         try {
-            $events = $this->googleCalendarService->getGoogleEvents(new \DateTime('-1 year'),  new \DateTime());
+            $googleEvents = $this->googleCalendarService->getGoogleEvents(new \DateTime('-1 year'),  new \DateTime('+1 year'));
 
-            foreach ($events as  $event) {
-                $this->handleEvent($event);
+            foreach ($googleEvents as  $event) {
+                $this->handleGoogleEvent($event);
+            }
+
+            $dbEvents = $this->calendarService->findEventEntities(new \DateTime('-1 year'),  new \DateTime('+1 year'));
+
+            foreach ($dbEvents as  $event) {
+                $this->handleDbEvent($event);
             }
         } catch (Exception $e) {
-
-                $output->writeln('💀 Error :');
-                $output->writeln('');
-                $output->writeln($e->getMessage());
+                $output->writeln('💀 Error :' . $e->getMessage());
 
                 return Command::FAILURE;
         }
@@ -59,19 +70,83 @@ class CalendarSyncCommand extends Command
         return Command::SUCCESS;
     }
 
-    private function handleEvent(Event $event): void
+    private function handleGoogleEvent(Event $event): void
     {
         $this->output->writeln('Received event ' . $event->getSummary());
-        $isAppointment = $event->getExtendedProperties()?->getPrivate() ?? false;
+        $isDataEvent = $event->getExtendedProperties()?->getPrivate() ?? false;
 
-        if ($isAppointment)  {
+        if ($isDataEvent)  {
             $this->output->writeln('    Processing ' . $event->getSummary());
             $this->processEvent($event);
         }
     }
 
+    private function handleDbEvent(Calendar $event): void
+    {
+        $this->output->writeln('Received event ' . $event->getEvent());
+
+        if (\in_array($event->getId(), $this->processedIds)) {
+            return;;
+        }
+
+        $isAlreadyOnGoogle = $event->getExtendedProperties() ? true : false;
+
+        if (!$isAlreadyOnGoogle)  {
+            $this->output->writeln('    Pushing event  ' . $event->getEvent() . ' to google.. TODO');
+        }
+    }
+
     private function processEvent(Event $event): void
     {
+        $em = $this->calendarService->getRepository()->getEntityManager();
+        $this->connection = $this->connection ? $this->connection : $em->getConnection();
+        $data = $event->getExtendedProperties()->getPrivate();
+        $data['dateFormat'] = \DateTimeInterface::ATOM;
+        $extendedProps = (array) $event->toSimpleObject();
+        $id = (int) $data['id'];
 
+        try {
+            $dbEvent = $this->calendarService->getRepository()->find($id);
+            $this->output->writeln('    Event found in the DB, checking which is up to date..');
+            $lastUpdated = new \DateTime($dbEvent->getExtendedProperties()['updated'] ?? 'now');
+            $googleUpdated = new \DateTime($event->getUpdated());
+
+            if ($lastUpdated < $googleUpdated) {
+                $this->output->writeln('    Google event is newer, updating..');
+                $dbEvent = $this->calendarService->updateFromArray($dbEvent, $data);
+                $dbEvent->setExtendedProperties($extendedProps);
+            } else if ($lastUpdated == $googleUpdated) {
+                $this->output->writeln('    Event is already in sync.');
+            } else {
+                $this->output->writeln('    DB event is newer, TODO UPDATE GOOGLE EVENT');
+            }
+
+            $em->flush($dbEvent);
+            $this->processedIds[] = $id;
+        } catch (ORMException $e) {
+            $this->output->writeln('    Event not found in the DB, adding..');
+            $this->insertEventNotInDb($data, $extendedProps);
+        }
+    }
+
+    private function insertEventNotInDb(array $data, array $extendedProps): void
+    {
+        $dbEvent = $this->calendarService->createFromArray($data);
+        $dbEvent->setExtendedProperties($extendedProps);
+        $sql = 'INSERT INTO `Calendar` (id, event, link, owner, startDate, endDate, status, color, extendedProperties) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
+        var_dump($data, $extendedProps); exit;
+        $params = [
+            $data['id'],
+            $data['event'],
+            $data['link'],
+            $data['owner'],
+            $data['startDate'],
+            $data['endDate'],
+            $data['status'],
+            $data['color'],
+            $data['extendedProperties'],
+        ];
+        $result = $this->connection->executeStatement($sql, $params);
     }
 }

@@ -83,7 +83,7 @@ class GoogleCalendarService
 
             return $results;
         } catch (Exception $e) {
-            die($e->getMessage());
+            throw $e;
         }
     }
 

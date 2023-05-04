@@ -67,7 +67,7 @@ class Calendar implements JsonSerializable
      * @var string
      * @ORM\Column(type="text", nullable=true)
      */
-    private string $extendedProperties;
+    private ?string $extendedProperties = null;
 
     /**
      * @return int
@@ -80,7 +80,7 @@ class Calendar implements JsonSerializable
     /**
      * @param int $id
      */
-    public function setId($id): void
+    public function setId(int $id): void
     {
         $this->id = $id;
     }
@@ -197,16 +197,13 @@ class Calendar implements JsonSerializable
         $this->color = $color;
     }
 
-    /**
-     * @return string
-     */
-    public function getExtendedProperties(): array
+    public function getExtendedProperties(): ?array
     {
-        return \json_decode($this->extendedProperties, true);
+        return $this->extendedProperties ? \json_decode($this->extendedProperties, true) : null;
     }
 
     /**
-     * @param string $extendedProperties
+     * @param array $extendedProperties
      */
     public function setExtendedProperties(array $extendedProperties): void
     {
