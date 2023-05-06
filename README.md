@@ -37,5 +37,10 @@ return [
 ```
 First thing is to register the webhook.
 ```
-bone 
+bone calendar:webhook
 ```
+Perform a sync, which will store the first sync token that our callback endpoint will use. 
+```
+bone calendar:sync
+```
+@todo update google from db in sync, create callback functionality
