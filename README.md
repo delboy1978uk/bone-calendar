@@ -21,9 +21,9 @@ return [
     // ...
 ];
 ```
-### usage with gfoogle calendar
+### usage with google calendar
 Limited functionality so far, but to do so, drop the following into your config (preferably create a 
-`bone-calendar.php` settings file), and put your google json file into the keys folder.
+`bone-calendar.php` settings file), and put your google json file into the keys folder. 
 ```php
 putenv('GOOGLE_APPLICATION_CREDENTIALS=data/keys/google-service-account.json');
 
@@ -31,7 +31,11 @@ return [
     'bone-calendar' => [
         'calendarId' => 'your-calendar-id@some-google-account.com',
         'callbackUrl' => 'https://your-site.com/api/calendar/google/callback',
+        'syncTokenJsonPath' => 'data/keys/googleCalendarSyncToken.json',
     ], 
 ]
 ```
-You 
+First thing is to register the webhook.
+```
+bone 
+```

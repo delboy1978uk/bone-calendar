@@ -51,6 +51,7 @@ class CalendarSyncCommand extends Command
             $output->writeln('');
             $output->writeln('Fetching Google Calendar Data..');
             $googleEvents = $this->googleCalendarService->getGoogleEvents(new \DateTime('-1 year'),  new \DateTime('+1 year'));
+            $this->storeNextSyncToken($googleEvents->getNextSyncToken());
 
             foreach ($googleEvents as  $event) {
                 $this->handleGoogleEvent($event);
@@ -72,9 +73,14 @@ class CalendarSyncCommand extends Command
         return Command::SUCCESS;
     }
 
+    private function storeNextSyncToken(string $syncToken): void
+    {
+        $this->googleCalendarService->storeNextSyncToken($syncToken);
+    }
+
     private function handleGoogleEvent(Event $event): void
     {
-        $this->output->writeln('Received event ' . $event->getSummary());
+        $this->output->writeln('Received Google event ' . $event->getSummary());
         $isDataEvent = $event->getExtendedProperties()?->getPrivate() ?? false;
 
         if ($isDataEvent)  {
@@ -89,7 +95,7 @@ class CalendarSyncCommand extends Command
             return;;
         }
 
-        $this->output->writeln('Received event ' . $event->getEvent());
+        $this->output->writeln('Received DB event ' . $event->getEvent());
         $isAlreadyOnGoogle = $event->getExtendedProperties() ? true : false;
 
         if (!$isAlreadyOnGoogle)  {

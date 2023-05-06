@@ -19,11 +19,13 @@ class GoogleCalendarService
     private string $calendarId = '';
     private string $callbackUrl = '';
     private Calendar $googleCalendar;
+    private string $syncTokenJsonPath = '';
 
-    public function __construct(string $calendarId, string $callbackUrl)
+    public function __construct(string $calendarId, string $callbackUrl, string $syncTokenJsonPath)
     {
         $this->calendarId = $calendarId;
         $this->callbackUrl = $callbackUrl;
+        $this->syncTokenJsonPath = $syncTokenJsonPath;
         $client = new Client();
         $client->useApplicationDefaultCredentials();
         $client->addScope(Calendar::CALENDAR);
@@ -159,6 +161,17 @@ class GoogleCalendarService
     public function deleteEvent(string $eventId): void
     {
         $this->googleCalendar->events->delete($this->calendarId, $eventId);
+    }
+
+    public function storeNextSyncToken(string $syncToken): void
+    {
+        $path  = \getcwd() . '/' . $this->syncTokenJsonPath ;
+
+        if (!\file_exists($path)) {
+            throw new Exception('Path `' . $path. '` nnot found. Create the file by running `touch ' . $path . '` in the terminal.');
+        }
+
+        \file_put_contents($path,$syncToken);
     }
 
     private function getGoogleColorId(CalendarEvent $event): int
