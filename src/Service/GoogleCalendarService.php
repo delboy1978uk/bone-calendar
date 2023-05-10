@@ -168,7 +168,7 @@ class GoogleCalendarService
         $path  = \getcwd() . '/' . $this->syncTokenJsonPath ;
 
         if (!\file_exists($path)) {
-            throw new Exception('Path `' . $path. '` nnot found. Create the file by running `touch ' . $path . '` in the terminal.');
+            throw new Exception('Path `' . $path. '` not found.' . "\n" . 'Create the file by running `touch ' . $path . '` in the terminal.');
         }
 
         \file_put_contents($path,$syncToken);

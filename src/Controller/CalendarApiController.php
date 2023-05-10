@@ -38,13 +38,15 @@ class CalendarApiController
         $query = $request->getQueryParams();
         $start = $query['start'] ?? null;
         $end = $query['end'] ?? null;
+        $start = new DateTime($start);
+        $end = new DateTime($end);
 
         if (!$start && !$end) {
             throw new Exception('You must supply a start and end date.', 400);
         }
 
-        $events = $this->service->findEvents(new DateTime($start), new DateTime($end));
-        $events2 = $this->googleCalendarService->getEvents(new DateTime($start), new DateTime($end));
+        $events = $this->service->findEvents($start, $end);
+        $events2 = $this->googleCalendarService->getEvents($start, $end);
 
         return new JsonResponse($events2);
     }

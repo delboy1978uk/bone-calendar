@@ -23,6 +23,7 @@ class CalendarSyncCommand extends Command
     private ?Connection $connection = null;
     private OutputInterface $output;
     private array $processedIds = [];
+    private int $newDbEvents = 0;
 
     public function __construct(GoogleCalendarService $googleCalendarService, CalendarService $calendarService)
     {
@@ -64,6 +65,10 @@ class CalendarSyncCommand extends Command
             foreach ($dbEvents as  $event) {
                 $this->handleDbEvent($event);
             }
+
+            if ($this->newDbEvents === 0) {
+                $output->writeln('    No new DB events needing pushed to Google found.');
+            }
         } catch (Exception $e) {
             $output->writeln('💀 Error :' . $e->getMessage());
 
@@ -90,16 +95,20 @@ class CalendarSyncCommand extends Command
 
     private function handleDbEvent(Calendar $event): void
     {
-
         if (\in_array($event->getId(), $this->processedIds)) {
             return;;
         }
 
+        $this->newDbEvents ++;
         $this->output->writeln('Received DB event ' . $event->getEvent());
         $isAlreadyOnGoogle = $event->getExtendedProperties() ? true : false;
 
         if (!$isAlreadyOnGoogle)  {
-            $this->output->writeln('    Pushing event  ' . $event->getEvent() . ' to google.. TODO');
+            $this->output->writeln('    Pushing event ' . $event->getEvent() . ' to google..');
+            $googleEvent = $this->googleCalendarService->createEvent($event);
+            $extendedProperties = (array) $googleEvent->toSimpleObject();
+            $event->setExtendedProperties($extendedProperties);
+            $this->calendarService->saveCalendar($event);
         }
     }
 

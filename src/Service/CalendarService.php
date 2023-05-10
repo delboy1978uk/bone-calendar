@@ -151,7 +151,7 @@ class CalendarService
      */
     public function findEvents(DateTime $start, DateTime $end): array
     {
-        $results =  $this->findEventEntities();
+        $results =  $this->findEventEntities($start, $end);
         $data = [];
 
         /** @var Calendar $event */
