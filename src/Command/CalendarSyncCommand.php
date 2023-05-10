@@ -50,7 +50,8 @@ class CalendarSyncCommand extends Command
 
         try {
             $output->writeln('');
-            $output->writeln('Fetching Google Calendar Data..');
+            $output->writeln('⬇ Fetching Google Calendar Data..');
+            $output->writeln('');
             $googleEvents = $this->googleCalendarService->getGoogleEvents(new \DateTime('-1 year'),  new \DateTime('+1 year'));
             $this->storeNextSyncToken($googleEvents->getNextSyncToken());
 
@@ -59,7 +60,10 @@ class CalendarSyncCommand extends Command
             }
 
             $output->writeln('');
-            $output->writeln('Fetching DB Calendar Data..');
+            $output->writeln('✔ Done, next Google sync token stored');
+            $output->writeln('');
+            $output->writeln('⬆ Fetching DB Calendar Data..');
+            $output->writeln('');
             $dbEvents = $this->calendarService->findEventEntities(new \DateTime('-1 year'),  new \DateTime('+1 year'));
 
             foreach ($dbEvents as  $event) {
@@ -67,13 +71,15 @@ class CalendarSyncCommand extends Command
             }
 
             if ($this->newDbEvents === 0) {
-                $output->writeln('    No new DB events needing pushed to Google found.');
+                $output->writeln('    👍 No new DB events needing pushed to Google found.');
             }
         } catch (Exception $e) {
             $output->writeln('💀 Error :' . $e->getMessage());
 
             return Command::FAILURE;
         }
+
+        $output->writeln('');
 
         return Command::SUCCESS;
     }
@@ -104,7 +110,8 @@ class CalendarSyncCommand extends Command
         $isAlreadyOnGoogle = $event->getExtendedProperties() ? true : false;
 
         if (!$isAlreadyOnGoogle)  {
-            $this->output->writeln('    Pushing event ' . $event->getEvent() . ' to google..');
+            $this->output->writeln('    ⬆ Pushing event ' . $event->getEvent() . ' to google..');
+            $this->output->writeln('    👍 DB & Google are in sync.');
             $googleEvent = $this->googleCalendarService->createEvent($event);
             $extendedProperties = (array) $googleEvent->toSimpleObject();
             $event->setExtendedProperties($extendedProperties);
@@ -127,13 +134,14 @@ class CalendarSyncCommand extends Command
             $googleUpdated = new \DateTime($event->getUpdated());
 
             if ($lastUpdated < $googleUpdated) {
-                $this->output->writeln('    Google event is newer, updating..');
+                $this->output->writeln('    ⬇ Google event is newer, updating..');
                 $dbEvent = $this->calendarService->updateFromArray($dbEvent, $data);
                 $dbEvent->setExtendedProperties($extendedProps);
             } else if ($lastUpdated == $googleUpdated) {
-                $this->output->writeln('    DB event is already in sync.');
+                $this->output->writeln('    👍 DB & Google are already in sync.');
             } else {
-                $this->output->writeln('    DB event is newer, TODO UPDATE GOOGLE EVENT');
+                $this->output->writeln('    ⬆ DB event is newer, updating db event.');
+                $this->googleCalendarService->updateFromArray($event, $dbEvent);
             }
 
             $em->flush($dbEvent);
