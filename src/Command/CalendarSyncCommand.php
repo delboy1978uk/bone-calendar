@@ -50,7 +50,7 @@ class CalendarSyncCommand extends Command
 
         try {
             $output->writeln('');
-            $output->writeln('⬇ Fetching Google Calendar Data..');
+            $output->writeln('⬇ Fetching Google Calendar Data for ' . APPLICATION_ENV . '..');
             $output->writeln('');
             $googleEvents = $this->googleCalendarService->getGoogleEvents(new \DateTime('-1 year'),  new \DateTime('+1 year'));
             $token = $googleEvents->getNextSyncToken();
