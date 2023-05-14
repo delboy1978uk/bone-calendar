@@ -53,7 +53,9 @@ class CalendarSyncCommand extends Command
             $output->writeln('⬇ Fetching Google Calendar Data..');
             $output->writeln('');
             $googleEvents = $this->googleCalendarService->getGoogleEvents(new \DateTime('-1 year'),  new \DateTime('+1 year'));
-            $this->storeNextSyncToken($googleEvents->getNextSyncToken());
+            $token = $googleEvents->getNextSyncToken();
+            $output->writeln('    ' . $token ? 'Storing next sync token ' . $token : 'No sync token receieved from Google.');
+            $this->storeNextSyncToken($token);
 
             foreach ($googleEvents as  $event) {
                 $this->handleGoogleEvent($event);
@@ -86,6 +88,10 @@ class CalendarSyncCommand extends Command
 
     private function storeNextSyncToken(string $syncToken): void
     {
+        if (!$syncToken) {
+            return;
+        }
+
         $this->googleCalendarService->storeNextSyncToken($syncToken);
     }
 
@@ -140,7 +146,7 @@ class CalendarSyncCommand extends Command
             } else if ($lastUpdated == $googleUpdated) {
                 $this->output->writeln('    👍 DB & Google are already in sync.');
             } else {
-                $this->output->writeln('    ⬆ DB event is newer, updating db event.');
+                $this->output->writeln('    ⬆ DB event is newer, updating Google event.');
                 $this->googleCalendarService->updateFromArray($event, $dbEvent);
             }
 
