@@ -54,7 +54,7 @@ class GoogleCalendarService
         ]);
         $syncToken = $data['sync_token'] = $events->getNextSyncToken();
         $json = \json_encode($data);
-        \file_put_contents($path);
+        \file_put_contents($path, $json);
 
         return $events;
     }
