@@ -10,6 +10,7 @@ use Bone\Calendar\Service\CalendarService;
 use Bone\Calendar\Service\GoogleCalendarService;
 use Bone\Exception;
 use DateTime;
+use Google\Service\Calendar\Event;
 use Laminas\Diactoros\Response\JsonResponse;
 use League\Route\Http\Exception\NotFoundException;
 use Psr\Http\Message\ResponseInterface;
@@ -173,13 +174,39 @@ class CalendarApiController
     public function googleCallback(ServerRequestInterface $request): ResponseInterface
     {
         \error_log('--- GOOGLE REQUEST START ---');
-        \error_log($request->getBody()->getContents());
         \error_log(json_encode($request->getHeaders()));
         \error_log('--- GOOGLE REQUEST END ---');
-
-
+        
         // https://developers.googleblog.com/2013/07/google-calendar-api-push-notifications.html
 
+        if ($request->getHeader('x-goog-resource-state') === 'exists') {
+            $events = $this->googleCalendarService->getEventsSinceLastSync();
+            foreach ($events as $event) {
+                $this->syncDbEventFromGoogle($event);
+            }
+        }
+
         return new JsonResponse(['body' => $request->getBody()->getContents()]);
+    }
+
+    private function syncDbEventFromGoogle(Event $event): void
+    {
+        $data = $event->getExtendedProperties();
+
+        if (!isset($data['id'])) {
+            return;
+        }
+
+        $dbEvent = $this->service->getRepository()->find($data['id']);
+
+        if (!$dbEvent) {
+            return;
+        }
+
+        $start = new \DateTime($event->getStart()->getDateTime());
+        $end = new \DateTime($event->getEnd()->getDateTime());
+        $dbEvent->getStartDate($start);
+        $dbEvent->setEndDate($end);
+        $this->service->getRepository()->save($dbEvent);
     }
 }

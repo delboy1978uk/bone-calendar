@@ -43,6 +43,22 @@ class GoogleCalendarService
         ]);
     }
 
+    public function getEventsSinceLastSync(): Events
+    {
+        $path = \getcwd() . '/' . $this->syncTokenJsonPath;
+        $json = \file_get_contents($path);
+        $data = \json_decode($json, true);
+        $syncToken = $data['sync_token'];
+        $events = $this->googleCalendar->events->listEvents($this->calendarId, [
+            'syncToken' => $syncToken
+        ]);
+        $data['sync_token'] = $events->getNextSyncToken();
+        $json = \json_encode($data);
+        \file_put_contents($path);
+
+        return $events;
+    }
+
     public function getEvents(DateTime $start, DateTime $end): array
     {
         try {
