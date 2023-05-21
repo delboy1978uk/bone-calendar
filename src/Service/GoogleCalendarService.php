@@ -153,10 +153,12 @@ class GoogleCalendarService
 
     public function registerWebhook(): Calendar\Channel
     {
+        $threeYearsFromNow = \time() + 94608000;
         $channel = new Calendar\Channel();
         $channel->setId($this->channelId);
         $channel->setType('webhook');
         $channel->setAddress($this->callbackUrl);
+        $channel->setExpiration($expiration);
         $result = $this->googleCalendar->events->watch($this->calendarId, $channel);
         $path = \getcwd() . '/' . $this->syncTokenJsonPath;
         $json = \file_get_contents($path);

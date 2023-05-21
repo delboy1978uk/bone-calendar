@@ -190,7 +190,7 @@ class CalendarApiController
     private function syncDbEventFromGoogle(Event $event): void
     {
         $data = $event->getExtendedProperties()->getPrivate();
-        
+
         if (!isset($data['id'])) {
             return;
         }
