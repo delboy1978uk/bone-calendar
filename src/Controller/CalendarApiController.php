@@ -190,7 +190,7 @@ class CalendarApiController
     private function syncDbEventFromGoogle(Event $event): void
     {
         $data = $event->getExtendedProperties()->getPrivate();
-        \error_log(\json_encode($data, JSON_PRETTY_PRINT));
+        
         if (!isset($data['id'])) {
             return;
         }
@@ -200,11 +200,10 @@ class CalendarApiController
         if (!$dbEvent) {
             return;
         }
-        \error_log('datetime' . $event->getStart()->getDateTime());
-        \error_log('date ' . $event->getStart()->getDate());
+
         $start = new \DateTime($event->getStart()->getDateTime());
         $end = new \DateTime($event->getEnd()->getDateTime());
-        $dbEvent->getStartDate($start);
+        $dbEvent->setStartDate($start);
         $dbEvent->setEndDate($end);
         $this->service->getRepository()->save($dbEvent);
     }
