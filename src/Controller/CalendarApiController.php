@@ -178,7 +178,6 @@ class CalendarApiController
 
         if ($state === 'exists') {
             $events = $this->googleCalendarService->getEventsSinceLastSync();
-            \error_log(\count($events) . ' events changed');
 
             foreach ($events as $event) {
                 $this->syncDbEventFromGoogle($event);
@@ -190,9 +189,8 @@ class CalendarApiController
 
     private function syncDbEventFromGoogle(Event $event): void
     {
-        \error_log('updating from google event '. $event->getId());
-        $data = $event->getExtendedProperties();
-        \error_log(\json_encode($event));
+        $data = $event->getExtendedProperties()->getPrivate();
+
         if (!isset($data['id'])) {
             return;
         }
