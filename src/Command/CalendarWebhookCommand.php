@@ -25,7 +25,7 @@ class CalendarWebhookCommand extends Command
     {
         $this->setDescription('[webhook] Sets up Google Calendar webhook');
         $this->setHelp('Sets a callback URL that will notify the system if the event is updated on Google');
-        $this->addArgument('delete', InputArgument::OPTIONAL, 'remove the webhook');
+        $this->addOption('delete', 'd', InputOption::VALUE_NONE, 'remove the webhook');
     }
 
     /**
@@ -38,7 +38,7 @@ class CalendarWebhookCommand extends Command
         $output->writeln('📅 Google Calendar webhook config');
         $output->writeln('');
 
-        if ($input->hasArgument('delete')) {
+        if ($input->getOption('delete')) {
             $output->writeln('Deleting webhook..');
 
             return $this->remove($output);
@@ -52,8 +52,7 @@ class CalendarWebhookCommand extends Command
     private function register(OutputInterface $output): int
     {
         try {
-            $x = $this->googleCalendarService->registerWebhook();
-            var_dump($x);
+            $this->googleCalendarService->registerWebhook();
             $output->writeln('✔ Webhook registered.');
         } catch (\Google\Service\Exception $e) {
             if ($e->getErrors()[0]['reason'] !== 'channelIdNotUnique') {

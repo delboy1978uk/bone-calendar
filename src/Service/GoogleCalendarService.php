@@ -141,14 +141,25 @@ class GoogleCalendarService
         $channel->setId($this->channelId);
         $channel->setType('webhook');
         $channel->setAddress($this->callbackUrl);
+        $result = $this->googleCalendar->events->watch($this->calendarId, $channel);
+        $path = \getcwd() . '/' . $this->syncTokenJsonPath;
+        $json = \file_get_contents($path);
+        $data = \json_decode($json, true);
+        $data['resourceId'] = $result->getResourceId();
+        $json = \json_encode($data);
+        \file_put_contents($path, $json);
 
-        return $this->googleCalendar->events->watch($this->calendarId, $channel);
+        return $result;
     }
 
-    public function removeWebhook(string $hookName = 'webhook')
+    public function removeWebhook()
     {
+        $path = \getcwd() . '/' . $this->syncTokenJsonPath;
+        $json = \file_get_contents($path);
+        $data = \json_decode($json, true);
         $channel = new Calendar\Channel();
         $channel->setId($this->channelId);
+        $channel->setResourceId($data['resourceId']);
         $channel->setType('webhook');
         $channel->setAddress($this->callbackUrl);
 
@@ -167,13 +178,16 @@ class GoogleCalendarService
 
     public function storeNextSyncToken(string $syncToken): void
     {
-        $path  = \getcwd() . '/' . $this->syncTokenJsonPath ;
+        $path = \getcwd() . '/' . $this->syncTokenJsonPath;
 
-        if (!\file_exists($path)) {
-            throw new Exception('Path `' . $path. '` not found.' . "\n" . 'Create the file by running `touch ' . $path . '` in the terminal.');
+        if (\file_exists($path)) {
+            $json = \file_get_contents($path);
+            $data = \json_decode($json, true);
         }
 
-        \file_put_contents($path,$syncToken);
+        $data['sync_token'] = $syncToken;
+        $json = \json_encode($data);
+        \file_put_contents($path, $json);
     }
 
     private function getGoogleColorId(CalendarEvent $event): int
