@@ -153,7 +153,7 @@ class GoogleCalendarService
 
     public function registerWebhook(): Calendar\Channel
     {
-        $threeYearsFromNow = \time() + 94608000;
+        $threeYearsFromNow = \time() + 94608000000;
         $channel = new Calendar\Channel();
         $channel->setId($this->channelId);
         $channel->setType('webhook');
