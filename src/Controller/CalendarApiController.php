@@ -174,7 +174,7 @@ class CalendarApiController
     public function googleCallback(ServerRequestInterface $request): ResponseInterface
     {
         \error_log('--- GOOGLE REQUEST START ---');
-        \error_log(json_encode($request->getHeaders()));
+        \error_log(json_encode($request->getHeaders(), JSON_PRETTY_PRINT));
         \error_log('--- GOOGLE REQUEST END ---');
 
         // https://developers.googleblog.com/2013/07/google-calendar-api-push-notifications.html
