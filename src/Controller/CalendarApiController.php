@@ -190,14 +190,16 @@ class CalendarApiController
     private function syncDbEventFromGoogle(Event $event): void
     {
         $data = $event->getExtendedProperties()->getPrivate();
-
+        \error_log(\json_encode($data, JSON_PRETTY_PRINT));
         if (!isset($data['id'])) {
+            \error_log('No DB ID supplied?');
             return;
         }
 
         $dbEvent = $this->service->getRepository()->find($data['id']);
 
         if (!$dbEvent) {
+            \error_log('no DB event found');
             return;
         }
 
