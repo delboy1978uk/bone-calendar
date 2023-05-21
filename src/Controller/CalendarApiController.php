@@ -176,11 +176,12 @@ class CalendarApiController
         \error_log('--- GOOGLE REQUEST START ---');
         \error_log(json_encode($request->getHeaders()));
         \error_log('--- GOOGLE REQUEST END ---');
-        
+
         // https://developers.googleblog.com/2013/07/google-calendar-api-push-notifications.html
 
         if ($request->getHeader('x-goog-resource-state') === 'exists') {
             $events = $this->googleCalendarService->getEventsSinceLastSync();
+            \error_log(\count($events) . ' events changed');
             foreach ($events as $event) {
                 $this->syncDbEventFromGoogle($event);
             }
@@ -192,7 +193,7 @@ class CalendarApiController
     private function syncDbEventFromGoogle(Event $event): void
     {
         $data = $event->getExtendedProperties();
-
+        \error_log(\json_encode($event));
         if (!isset($data['id'])) {
             return;
         }
