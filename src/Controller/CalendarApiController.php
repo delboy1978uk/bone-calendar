@@ -187,7 +187,7 @@ class CalendarApiController
                 $this->syncDbEventFromGoogle($event);
             }
         } else {
-            \error_log($header);
+            \error_log('Header x-goog-resource-state = '. $header . '.');
         }
 
         return new JsonResponse(['body' => $request->getBody()->getContents()]);
