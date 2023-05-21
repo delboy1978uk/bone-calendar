@@ -45,14 +45,18 @@ class GoogleCalendarService
 
     public function getEventsSinceLastSync(): Events
     {
+        \error_log('Fetching last sync token');
         $path = \getcwd() . '/' . $this->syncTokenJsonPath;
         $json = \file_get_contents($path);
         $data = \json_decode($json, true);
         $syncToken = $data['sync_token'];
+        \error_log($syncToken);
         $events = $this->googleCalendar->events->listEvents($this->calendarId, [
             'syncToken' => $syncToken
         ]);
-        $data['sync_token'] = $events->getNextSyncToken();
+        \error_log('found ' . \count($events) . ' events');
+        $syncToken = $data['sync_token'] = $events->getNextSyncToken();
+        \error_log('Storing next sync token ' . $syncToken);
         $json = \json_encode($data);
         \file_put_contents($path);
 
