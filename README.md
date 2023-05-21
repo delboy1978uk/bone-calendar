@@ -29,6 +29,7 @@ putenv('GOOGLE_APPLICATION_CREDENTIALS=data/keys/google-service-account.json');
 
 return [
     'bone-calendar' => [
+        'channelId' => 'make_this_different_on_each_environment'
         'calendarId' => 'your-calendar-id@some-google-account.com',
         'callbackUrl' => 'https://your-site.com/api/calendar/google/callback',
         'syncTokenJsonPath' => 'data/keys/googleCalendarSyncToken.json',
