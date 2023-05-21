@@ -20,11 +20,13 @@ class GoogleCalendarService
     private string $callbackUrl = '';
     private Calendar $googleCalendar;
     private string $syncTokenJsonPath = '';
+    private string $channelId = 'webhook';
 
-    public function __construct(string $calendarId, string $callbackUrl, string $syncTokenJsonPath)
+    public function __construct(string $calendarId, string $callbackUrl, string $syncTokenJsonPath, string $channelId)
     {
         $this->calendarId = $calendarId;
         $this->callbackUrl = $callbackUrl;
+        $this->channelId = $channelId;
         $this->syncTokenJsonPath = $syncTokenJsonPath;
         $client = new Client();
         $client->useApplicationDefaultCredentials();
@@ -133,10 +135,10 @@ class GoogleCalendarService
         return $this->googleCalendar->events->update($this->calendarId, $googleEvent->getId(), $googleEvent);
     }
 
-    public function registerWebhook(string $hookName = 'webhook'): Calendar\Channel
+    public function registerWebhook(): Calendar\Channel
     {
         $channel = new Calendar\Channel();
-        $channel->setId($hookName);
+        $channel->setId($this->channelId);
         $channel->setType('webhook');
         $channel->setAddress($this->callbackUrl);
 
@@ -146,7 +148,7 @@ class GoogleCalendarService
     public function removeWebhook(string $hookName = 'webhook')
     {
         $channel = new Calendar\Channel();
-        $channel->setId($hookName);
+        $channel->setId($this->channelId);
         $channel->setType('webhook');
         $channel->setAddress($this->callbackUrl);
 
@@ -191,5 +193,13 @@ class GoogleCalendarService
             default:
                 return 1;
         }
+    }
+
+    /**
+     * @return string
+     */
+    public function getChannelId(): string
+    {
+        return $this->channelId;
     }
 }

@@ -25,7 +25,7 @@ class CalendarWebhookCommand extends Command
     {
         $this->setDescription('[webhook] Sets up Google Calendar webhook');
         $this->setHelp('Sets a callback URL that will notify the system if the event is updated on Google');
-        $this->addArgument('delete', InputArgument::OPTIONAL, 'remve the webhook');
+        $this->addArgument('delete', InputArgument::OPTIONAL, 'remove the webhook');
     }
 
     /**
@@ -52,7 +52,7 @@ class CalendarWebhookCommand extends Command
     private function register(OutputInterface $output): int
     {
         try {
-            $x = $this->googleCalendarService->registerWebhook('xxxxx');
+            $x = $this->googleCalendarService->registerWebhook();
             var_dump($x);
             $output->writeln('✔ Webhook registered.');
         } catch (\Google\Service\Exception $e) {
@@ -74,7 +74,7 @@ class CalendarWebhookCommand extends Command
     private function remove(OutputInterface $output): int
     {
         try {
-            $this->googleCalendarService->removeWebhook('xxxxx');
+            $this->googleCalendarService->removeWebhook();
             $output->writeln('✔ Webhook removed.');
         } catch (\Google\Service\Exception $e) {
                 $output->writeln('💀 Error :');

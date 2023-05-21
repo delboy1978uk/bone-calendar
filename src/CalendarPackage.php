@@ -44,8 +44,9 @@ class CalendarPackage implements RegistrationInterface, RouterConfigInterface, E
             $calendarId = $c->has('bone-calendar') ? $c->get('bone-calendar')['calendarId'] : '';
             $callbackUrl =  $c->has('bone-calendar') ? $c->get('bone-calendar')['callbackUrl'] : '';
             $syncTokenJsonPath = $c->has('bone-calendar') ? $c->get('bone-calendar')['syncTokenJsonPath'] : 'data/keys/gooogleCalendaryncToken.json';
+            $channelId = $c->has('bone-calendar') ? $c->get('bone-calendar')['channelId'] : 'webhook';
 
-            return new GoogleCalendarService($calendarId, $callbackUrl, $syncTokenJsonPath);
+            return new GoogleCalendarService($calendarId, $callbackUrl, $syncTokenJsonPath, $channelId);
         });
 
         $c[CalendarController::class] = $c->factory(function (Container $c) {
