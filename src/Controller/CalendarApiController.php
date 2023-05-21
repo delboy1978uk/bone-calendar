@@ -185,6 +185,8 @@ class CalendarApiController
             foreach ($events as $event) {
                 $this->syncDbEventFromGoogle($event);
             }
+        } else {
+            \error_log('nope');
         }
 
         return new JsonResponse(['body' => $request->getBody()->getContents()]);
