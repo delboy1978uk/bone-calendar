@@ -70,8 +70,8 @@ class GoogleCalendarService
                 if ($properties = $event->getExtendedProperties()?->getPrivate()) {
                     $results[] = [
                         'title' => $properties['event'],
-                        'start' => $properties['startDate'],
-                        'end' => $properties['endDate'],
+                        'start' => $event->getStart()->getDateTime(),
+                        'end' => $event->getEnd()->getDateTime(),
                         'url' => $properties['link'],
                         'calendarID' => $properties['id'],
                         'status' => $properties['status'] ?? null,
